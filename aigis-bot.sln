@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "discord-tag-bot", "discord-tag-bot.njsproj", "{B08DAB54-C992-4DED-BEF7-2674BC9478D0}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "aigis-bot", "aigis-bot.njsproj", "{B08DAB54-C992-4DED-BEF7-2674BC9478D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
