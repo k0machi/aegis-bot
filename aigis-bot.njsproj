@@ -21,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="discord-tag-bot" />
+    <Folder Include="database\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.sample.json" />
