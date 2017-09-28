@@ -6,7 +6,7 @@ const cmdPrefix = BotConfig.command_prefix;
 
 client.on('ready', () => { 
   console.log('I am ready!');
-  client.user.setPresence({game: {name: "say $aegis", type: 0}});
+  client.user.setPresence({game: {name: "say $aigis", type: 0}});
 });
 
 function processCommand(message)
@@ -32,14 +32,14 @@ function processCommand(message)
         untagMe(args.join(' '), message.author, message.guild, message.channel)
         message.channel.send('Removing tag ' + '"' + args.join(' ')+'"' + " from user " + message.author);
       break;
-    case 'aegis':
+    case 'aigis':
         message.channel.send({
           embed: {
             author: {
               name: client.user.username,
               icon_url: client.user.avatarURL
             },
-            title : 'Tag Bot',
+            title : 'Aigis Bot',
             fields: [{
               name : 'Commands',
               value : '**!tagme** *<tagname>* - Sets an @ - able tag on you. \n**!untagme** *<tagname>* - Removes a tag from you. If this results in tag having no members, the tag is removed'
