@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "discord.js": "latest",
+    "sql": "^0.78.0",
+    "sqlite": "^2.8.0",
     "steam-web": "0.6.0"
   },
   "main": "index.js",
