@@ -1,12 +1,29 @@
 {
-  "name" : "aegis-discord-bot",
-  "version" : "0.0.1",
+  "name": "aegis-discord-bot",
+  "version": "0.0.1",
   "description": "A Discord Bot",
-  "keywords": [ "bot", "discord", "tmtm" ],
+  "keywords": [
+    "bot",
+    "discord",
+    "tmtm"
+  ],
   "homepage": "https://onozuka.info",
-  "bugs": "https://gitlab.onozuka.info/komachi/aegis-bot",
+  "bugs": {
+    "url": "https://gitlab.onozuka.info/komachi/aegis-bot"
+  },
   "license": "MIT",
   "private": true,
-  "repository": "https://gitlab.onozuka.info/komachi/aegis-bot.git",
-  "dependencies": {"discord.js" : "latest"}
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.onozuka.info/komachi/aegis-bot.git"
+  },
+  "dependencies": {
+    "discord.js": "latest"
+  },
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Komachi"
 }
