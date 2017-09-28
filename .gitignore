@@ -1,3 +1,5 @@
 /node_modules/
 /.vs/
 config.json
+/obj/Debug
+/bin

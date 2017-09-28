@@ -1,0 +1,4 @@
+﻿{
+  "app_token": "YOUR DISCORD API SECRET",
+  "command_prefix": "$"
+}
