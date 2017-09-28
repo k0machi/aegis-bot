@@ -1,4 +1,5 @@
 ﻿{
   "app_token": "YOUR DISCORD API SECRET",
+  "steam-api-token":  "YOUR STEAM WEB API TOKEN",
   "command_prefix": "$"
 }
