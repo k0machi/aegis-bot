@@ -7,7 +7,7 @@ const Aigis = require('./aigis');
 
 client.on('ready', () => { 
     console.log('I am ready!');
-    Aigis.getConfig(BotConfig);
+    Aigis.init(BotConfig, null, client);
   client.user.setPresence({game: {name: "say $aigis", type: 0}});
 });
 

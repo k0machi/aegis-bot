@@ -1,11 +1,15 @@
 ﻿module.exports = {
+    client: null,
+    sql: null,
     config: null,
 
-    getConfig: function (config) {
+    init: function(config, sql, client) {
         this.config = config;
+        this.client = client;
+        this.sql = sql;
     },
 
-    processCommand: function processCommand(message){
+    processCommand: function(message){
         const args = message.content.slice(this.config.command_prefix.length).trim().split(/ +/g);
         const command = args.shift();
         switch (command) {
@@ -27,6 +31,7 @@
                 message.channel.send('Removing tag ' + '"' + args.join(' ') + '"' + " from user " + message.author);
                 break;
             case 'aigis':
+                var client = this.client;
                 message.channel.send({
                     embed: {
                         author: {
