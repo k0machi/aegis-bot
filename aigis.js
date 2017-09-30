@@ -9,10 +9,54 @@
         this.sql = sql;
     },
 
+    logToDB: function (id, time, cmd, args, guild) {
+        this.sql.run('INSERT INTO History ([User_Id], [Time], [Action], [Arguments], [Guild]) VALUES (?, ?, ?, ?, ?)', [id, time, cmd, JSON.stringify(args), guild.id]);
+    },
+    history: function (message) {
+        var sql = this.sql;
+        var history = [];
+        sql.all('SELECT * FROM History').then(async (rows) => {
+            await rows.forEach(async (row, rowid) => {
+                try {
+                    user = await this.client.fetchUser(row.User_Id + '', true);
+                    member = await message.guild.fetchMember(row.User_Id);
+                } catch (e) {
+                    console.log(e.message);
+                }
+                msgDate = new Date(parseInt(row.Time, 10));
+                history.push(
+                    'User '
+                    + member
+                    + ' ran command "'
+                    + row.Action
+                    + '" with arguments '
+                    + row.Arguments
+                    + ' at "'
+                    + msgDate.toLocaleString('en-ISO', { timeZone: "America/New_York" })
+                    + ' EST"');
+                if (rows.length == rowid + 1)
+                    message.channel.send(history);
+            });
+        })
+    },
     processCommand: function(message){
         const args = message.content.slice(this.config.command_prefix.length).trim().split(/ +/g);
         const command = args.shift();
         switch (command) {
+            case 'dump_message':
+                console.log(message);
+            break;
+            case 'SELECT_ALL':
+                this.sql.all('SELECT * FROM Users').then((rows) => {
+                    rows.forEach((row, rowid) => { message.channel.send(row.Name) });
+                })
+                break;
+            case 'logcommand':
+                this.logToDB(message.author.id, message.createdTimestamp, 'Test #2', args.join(','));                
+                break;
+            case 'history':
+                this.history(message);
+                break;
             case 'purge':
                 message.channel.send('Implementation pending.');
                 break;
@@ -29,6 +73,19 @@
             case 'untagme':
                 this.untagMe(args.join(' '), message.author, message.guild, message.channel)
                 message.channel.send('Removing tag ' + '"' + args.join(' ') + '"' + " from user " + message.author);
+                break;
+            case 'deletemsg':
+                message.guild.fetchMember(message.author).then((member) => {
+                    if (member.hasPermission("MANAGE_MESSAGES", false, true)) {
+                        amount = parseInt(args[0], 10) || 1;
+                        message.channel.send('Okay.').then(() => {
+                            this.logToDB(member.id, message.createdTimestamp, command, [amount, member.user.username + ' deleted ' + amount + ' messages from channel ' + message.channel.name]);
+                            message.channel.bulkDelete(amount + 2);
+                        });
+                    } else {
+                        message.channel.send('No.');
+                    }
+                });
                 break;
             case 'aigis':
                 var client = this.client;
