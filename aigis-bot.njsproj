@@ -17,11 +17,54 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Compile Include="commands\aigis.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\anothercommand.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\gettagmode.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\history.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\logcommand.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\massdelete.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\meow.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\tagcreate.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\tagdelete.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\tagmode.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\tagme.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\tagpurge.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\tagquery.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="commands\untagme.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="index.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="discord-tag-bot" />
     <Folder Include="database\" />
+    <Folder Include="commands\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.sample.json" />

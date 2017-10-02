@@ -1,13 +1,15 @@
 const { promisify } = require("util");
 const directoryReader = promisify(require("fs").readdir);
+const sqlite = require('sqlite');
 const Discord = require('discord.js');
 const BotConfig = require('./config.json');
 const client = new Discord.Client();
 const Aigis = require('./aigis');
+sqlite.open('./database/main.db');
 
 
 const launch = async () => {
-    Aigis.init(BotConfig, null, client);
+    Aigis.init(BotConfig, sqlite, client);
     Aigis.setPresence(); //expand to full event register in future
     const commands = await directoryReader("./commands/");
     console.log(`Read ${commands.length} command files`);

@@ -30,6 +30,21 @@
         this.aliases[alias] = verb;
     },
 
+    getTagMode: async function (guild) {
+        mode = await this.sql.get('SELECT * FROM TagModeData WHERE guildId == ?', [guild.id]);
+        return mode.mode;
+    },
+
+    verifyPermission: async function (user, guild, perm) {
+        member = await guild.fetchMember(user.id);
+        perms = member.hasPermission(perm, false, true);
+        if (perms) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
     processCommand: function (message) {
         const args = message.content.slice(this.config.command_prefix.length).trim().split(/ +/g);
         const command = args.shift();
@@ -37,92 +52,63 @@
         if (!cmd)
             return;
         cmd.exec(this, message, args);
-        return;
-        switch (command) {
-            case 'purge':
-                message.channel.send('Implementation pending.');
-                break;
-            case 'delete':
-                message.channel.send('Implementation pending.');
-                break;
-            case 'blacklist':
-                message.channel.send('Implementation pending.');
-                break;
-            case 'tagme':
-                message.channel.send('Tag requested: ' + args.join(' '));
-                this.tagMe(args.join(' '), message.author, message.guild, message.channel);
-                break;
-            case 'untagme':
-                this.untagMe(args.join(' '), message.author, message.guild, message.channel)
-                message.channel.send('Removing tag ' + '"' + args.join(' ') + '"' + " from user " + message.author);
-                break;
-            case 'aigis':
-                var client = this.client;
-                message.channel.send({
-                    embed: {
-                        author: {
-                            name: client.user.username,
-                            icon_url: client.user.avatarURL
-                        },
-                        title: 'Aigis Bot',
-                        fields: [{
-                            name: 'Commands',
-                            value: '**!tagme** *<tagname>* - Sets an @ - able tag on you. \n**!untagme** *<tagname>* - Removes a tag from you. If this results in tag having no members, the tag is removed'
-                        },
-                        {
-                            name: 'Moderator Commands',
-                            value: 'Requries MANAGE_ROLES permission.\n**!delete** *<tagname>* - Deletes a user-defined tag\n**!blacklist** *<user>* *<deleteTags>* - Blacklists a user and, optionally, removes all tags they\'ve created\n**!purge** - Deletes all user defined tags'
-                        }]
-                    }
-                });
-                break;
+    },
+
+    switchTagMode: async function (guild, message) {
+        perm = await this.verifyPermission(message.author, guild, "MANAGE_ROLES");
+        if (!perm) { message.channel.send('Missing permission!'); return; };
+        mode = await this.sql.get('SELECT * FROM TagModeData WHERE guildId == ?', [guild.id]);
+        if (mode) {
+            md = await this.sql.run('UPDATE TagModeData SET [mode] = ? WHERE guildid == ?', [!mode.mode, mode.guildId]);
+            if (mode.mode) {
+                message.channel.send('Switched tagging mode to public - everyone can create tags!');
+            } else {
+                message.channel.send('Switched tagging mode to protected - only people with "Manage Roles" can create new tags');
+            }
+        } else {
+            md = await this.sql.run('INSERT INTO TagModeData ([guildId], [mode]) VALUES (?, ?)', [guild.id, 1]);
+            message.channel.send('Switched tagging mode to protected - only people with "Manage Roles" can create new tags');
         }
     },
 
-    checkTag: async function(tagname, guild) {
-        role = await guild.roles.find('name', tagname);
-        return role;
+    checkUserBlacklist: function (member) {
+        if (member.roles.find('name', 'Vandal')) return true;
+        return false;
     },
 
-    createTag: async function(tagname, guild) {
+    checkTag: async function (tagname, guild) {
+        role_db = await this.sql.get('SELECT * FROM UserTags WHERE tagname == ?', [tagname]);
+        role_server = await guild.roles.find('name', tagname);
+        if (role_db && role_server) return { 'role': role_server, 'db': role_db };
+        if (!role_server && !role_db) return false;
+        if (role_server && !role_db) throw { message: 'Unmanaged role - not allowed!' };
+    },
+
+    createTag: async function (tagname, guild, user, time) {
         role = await guild.createRole({
             name: tagname,
             color: '00e5ff',
             permissions: 0,
             mentionable: true
-        }, 'User requested a non-existent user-defined tag')
+        }, `${user.username} requested a non-existent user-defined tag`)
+        result = await this.sql.run('INSERT INTO UserTags ([tagname], [roleid], [guildid], [creatorid], [createdTimestamp]) VALUES (?,?,?,?,?)', [tagname, role.id, guild.id, user.id, time]);
+        if (!result) throw { message: 'Error accessing database' };
         return role;
     },
 
-    deleteTag: async function (tagname, guild) {
+    deleteTag: async function (tagname, guild, channel, user) {
         var result;
-        role = await guild.roles.find('name', tagname);
-        role.delete('A user-created tag is now empty');
-    },
-
-    tagMe: async function (gname, user, guild, channel) {
-        if (gname.length > 16) { channel.send('Woah there dude, that\'s way too long!'); return false; };
-        if (gname.includes('@')) { channel.send('Nuh-uh, that doesn\'t look like a good idea'); return false; };
-        if (gname.length < 1) { channel.send('Hey, at least make the name longer than your penis length'); return false; };
+        perm = await this.verifyPermission(user, guild, "MANAGE_ROLES");
+        if (!perm) { channel.send('No.'); return; };
         try {
-            member = await guild.members.find('id', user.id);
-            role = await this.checkTag(gname, guild);
-            //console.log(role);
-            if (role) {
-                rv = await member.addRole(role, 'User tag added');
-                channel.send('I\'ve tagged you with "' + role.name + '"');
-                return true;
-            }
-            else {
-                tag = await this.createTag(gname, guild);
-                rv = await member.addRole(tag, 'User tag');
-                channel.send('I\'ve tagged you with "' + tag.name + '"');
-                return true;
-            }
-        }
-        catch (e) {
+            role = await this.checkTag(tagname, guild);
+            if (!role) throw { message: 'Role doesn\'t exist' };
+            role.role.delete('A user-created tag is now empty');
+            result = await this.sql.run('DELETE FROM UserTags WHERE tagname == ? AND guildid == ?', [tagname, guild.id]);
+            if (!result) throw { message: 'Error accessing database' };
+            await channel.send(`Tag "${role.role.name}" deleted`);
+        } catch (e) {
             channel.send(e.message);
-            console.log(e);
         }
     },
 
@@ -145,5 +131,10 @@
             channel.send(e.message);
             console.log(e);
         }
-    }
+    },
+
+    logToDB: function (id, time, cmd, args, guild) {
+        this.sql.run('INSERT INTO History ([User_Id], [Time], [Action], [Arguments], [Guild]) VALUES (?, ?, ?, ?, ?)', [id, time, cmd, JSON.stringify(args), guild.id]);
+    },
+
 };
