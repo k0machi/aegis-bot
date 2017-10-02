@@ -39,7 +39,7 @@
             });
         })
     },
-    processCommand: function(message){
+    processCommand: async function(message){
         const args = message.content.slice(this.config.command_prefix.length).trim().split(/ +/g);
         const command = args.shift();
         switch (command) {
@@ -57,13 +57,20 @@
             case 'history':
                 this.history(message);
                 break;
-            case 'purge':
+            case 'gettagmode':
+                mode = await this.getTagMode(message.guild);
+                message.channel.send(mode);
+                break;
+            case 'tagmode':
+                this.switchTagMode(message.guild, message);
+                break;
+            case 'tagpurge':
                 message.channel.send('Implementation pending.');
                 break;
-            case 'delete':
+            case 'tagdelete':
                 message.channel.send('Implementation pending.');
                 break;
-            case 'blacklist':
+            case 'tagblacklist':
                 message.channel.send('Implementation pending.');
                 break;
             case 'tagme':
@@ -75,17 +82,8 @@
                 message.channel.send('Removing tag ' + '"' + args.join(' ') + '"' + " from user " + message.author);
                 break;
             case 'deletemsg':
-                message.guild.fetchMember(message.author).then((member) => {
-                    if (member.hasPermission("MANAGE_MESSAGES", false, true)) {
-                        amount = parseInt(args[0], 10) || 1;
-                        message.channel.send('Okay.').then(() => {
-                            this.logToDB(member.id, message.createdTimestamp, command, [amount, member.user.username + ' deleted ' + amount + ' messages from channel ' + message.channel.name]);
-                            message.channel.bulkDelete(amount + 2);
-                        });
-                    } else {
-                        message.channel.send('No.');
-                    }
-                });
+                amount = parseInt(args[0], 10) || 1;
+                this.buldDeleteMessages(message.guild, message.channel, message.author, message, amount);
                 break;
             case 'aigis':
                 var client = this.client;
@@ -108,6 +106,51 @@
                 });
                 break;
         }
+    },
+
+    verifyPermission: async function (user, guild, perm) {
+        member = await guild.fetchMember(user.id);
+        perms = member.hasPermission(perm, false, true);
+        if (perms) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+    getTagMode: async function (guild) {
+        mode = await this.sql.get('SELECT * FROM TagModeData WHERE guildId == ?', [guild.id]);
+        return mode.mode;
+    },
+
+    switchTagMode: async function (guild, message) {
+        perm = await this.verifyPermission(message.author, guild, "MANAGE_ROLES");
+        if (!perm) { message.channel.send('Missing permission!'); return; };
+        mode = await this.sql.get('SELECT * FROM TagModeData WHERE guildId == ?', [guild.id]);
+        if (mode) {
+            md = await this.sql.run('UPDATE TagModeData SET [mode] = ? WHERE guildid == ?', [!mode.mode, mode.guildId]);
+            if (mode.mode) {
+                message.channel.send('Switched tagging mode to public - everyone can create tags!');
+            } else {
+                message.channel.send('Switched tagging mode to protected - only people with "Manage Roles" can create new tags');
+            }
+        } else {
+            md = await this.sql.run('INSERT INTO TagModeData ([guildId], [mode]) VALUES (?, ?)', [guild.id, 1]);
+            message.channel.send('Switched tagging mode to protected - only people with "Manage Roles" can create new tags');
+        }
+    },
+
+    buldDeleteMessages: function (guild, channel, user, message, amount) {
+        guild.fetchMember(user).then((member) => {
+            if (member.hasPermission("MANAGE_MESSAGES", false, true)) {
+                    channel.send('Okay.').then(() => {
+                    channel.bulkDelete(amount + 2);
+                    this.logToDB(member.id, message.createdTimestamp, 'DELETE_MESSAGE', [amount, member.user.username + ' deleted ' + amount + ' messages from channel ' + message.channel.name], message.guild);
+                });
+            } else {
+                channel.send('No.');
+            }
+        });
     },
 
     checkTag: async function(tagname, guild) {
@@ -145,6 +188,11 @@
                 return true;
             }
             else {
+                tagmode = await this.getTagMode(guild);
+                if (tagmode) {
+                    perm = await this.verifyPermission(user, guild, "MANAGE_ROLES");
+                    if (!perm) { channel.send("Missing permissions for creating a tag."); return false; }
+                }
                 tag = await this.createTag(gname, guild);
                 rv = await member.addRole(tag, 'User tag');
                 channel.send('I\'ve tagged you with "' + tag.name + '"');
