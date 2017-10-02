@@ -2,6 +2,7 @@ const { promisify } = require("util");
 const directoryReader = promisify(require("fs").readdir);
 const sqlite = require('sqlite');
 const Discord = require('discord.js');
+const sqlite = require('sqlite');
 const BotConfig = require('./config.json');
 const client = new Discord.Client();
 const Aigis = require('./aigis');
