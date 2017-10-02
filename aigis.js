@@ -2,16 +2,42 @@
     client: null,
     sql: null,
     config: null,
+    pfx: '',
+    commands: {},
+    aliases: {},
 
     init: function(config, sql, client) {
         this.config = config;
         this.client = client;
         this.sql = sql;
+        this.pfx = this.config.command_prefix;
     },
 
-    processCommand: function(message){
+    setPresence: function ()
+    {
+        this.client.on('ready', async () => {
+            console.log('I am ready!');
+            this.client.user.setPresence({ game: { name: `say ${this.pfx}aigis`, type: 0 } });
+            console.log(this.aliases);
+        });
+    },
+
+    registerCommand: function (verb, object) {
+        this.commands[verb] = object;
+    },
+
+    registerAlias: function (alias, verb) {
+        this.aliases[alias] = verb;
+    },
+
+    processCommand: function (message) {
         const args = message.content.slice(this.config.command_prefix.length).trim().split(/ +/g);
         const command = args.shift();
+        const cmd = this.commands[command] || this.commands[this.aliases[command]];
+        if (!cmd)
+            return;
+        cmd.exec(this, message, args);
+        return;
         switch (command) {
             case 'purge':
                 message.channel.send('Implementation pending.');
