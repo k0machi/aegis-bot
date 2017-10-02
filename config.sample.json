@@ -1,5 +1,6 @@
 ﻿{
   "app_token": "YOUR DISCORD API SECRET",
-  "steam-api-token":  "YOUR STEAM WEB API TOKEN",
+  "steam-api-token": "YOUR STEAM WEB API TOKEN",
+  "purgeKey": "A PHRASE USED AS CONFIRMATION ARGUMENT TO PURGE COMMAND",
   "command_prefix": "$"
 }
