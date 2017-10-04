@@ -7,6 +7,50 @@
     pfx: '',
     commands: {},
     aliases: {},
+    phabStoryBuilder: {
+        author: null,
+        object: null,
+        bot: null,
+        story: null,
+        cbAuthor: function (err, author) {
+            this.author = author;
+            if (this.author && this.object) this.send();
+        },
+        cbObject: function (err, object) {
+            this.object = object;
+            if (this.author && this.object) this.send();
+        },
+        send: function () {
+            guild = this.bot.client.guilds.find('id', this.bot.config.phab_story_guild_id);
+            if (!guild) throw { message: 'Not a member of dev guild' };
+            channel = guild.channels.find('id', this.bot.config.phab_story_channel_id);
+            if (!guild) throw { message: 'Unknown channel' };
+            console.log(this.author.data[0].fields);
+            console.log(this.object[Object.keys(this.object)[0]]);
+
+            rv = channel.send({
+                embed: {
+                    title: this.object[Object.keys(this.object)[0]].name,
+                    url: this.object[Object.keys(this.object)[0]].uri,
+                    author: {
+                        name: this.author.data[0].fields.username,
+                        url: "https://dev.onozuka.info",
+                        icon_url: "https://dev.onozuka.info/res/phabricator/65905ecd/rsrc/favicons/apple-touch-icon-152x152.png"
+                    },
+                    fields: [
+                        {
+                            name: this.object[Object.keys(this.object)[0]].typeName,
+                            value: this.story.storyText
+                        },
+                        {
+                            name: "Status",
+                            value: this.object[Object.keys(this.object)[0]].status
+                        }
+                    ]
+                }
+            });
+        }
+    },
 
     init: function(config, sql, client, canduit) {
         this.config = config;
@@ -14,58 +58,17 @@
         this.sql = sql;
         this.pfx = this.config.command_prefix;
         this.canduit = canduit;
+        this.phabStoryBuilder.bot = this;
         new canduit({ api: this.config.phab_host, user: "Aegis", token: this.config.phab_api_token }, (error, result) => {
             console.log(result);
             this.conduit_endpoint = result;
         })
     },
 
-    phabStory: async function (post) {
-        guild = this.client.guilds.find('id', this.config.phab_story_guild_id);
-        if (!guild) throw { message: 'Not a member of dev guild' };
-        //console.log(guild);
-        channel = guild.channels.find('id', this.config.phab_story_channel_id);
-        if (!guild) throw { message: 'Unknown channel' };
-        //console.log(channel);
-        console.log(post);
-        //resolving phids
-        let ph_author;
-        let ph_object;
-        p1 = await this.conduit_endpoint.exec('user.search', { constraints: { phids: [post.storyAuthorPHID] } }, (err, user) => {
-            console.log('callback');
-            console.log(user);
-            console.log('exit');
-            ph_author = user;
-        });
-        p2 = await this.conduit_endpoint.exec('phid.query', { phids: [post["storyData[objectPHID]"]] }, (err, object) => {
-            console.log('callback');
-            console.log(object);
-            console.log('exit');
-            ph_object = object;
-        });
-
-        Promise.all([p1, p2]).then(values => {
-            console.log(ph_object);
-            console.log(ph_author);
-        });
-        return;
-        rv = await channel.send({
-            embed: {
-                title: "Phabricator Feed",
-                url: "https://dev.onozuka.info",
-                author: {
-                    name: phab_name,
-                    url: phab_object_url,
-                    icon_url: phab_avatar
-                },
-                fields: {
-                    field: {
-                        name: phab_object_name,
-                        value: post.storyText
-                    }
-                }
-            }
-        });
+    phabStory: function (post) {
+        this.phabStoryBuilder.story = post;
+        this.conduit_endpoint.exec('user.search', { constraints: { phids: [post.storyAuthorPHID] }, attachments: { avatar: true } }, this.phabStoryBuilder.cbAuthor.bind(this.phabStoryBuilder));
+        this.conduit_endpoint.exec('phid.query', { phids: [post["storyData[objectPHID]"]] }, this.phabStoryBuilder.cbObject.bind(this.phabStoryBuilder));
     },
 
 
