@@ -5,11 +5,19 @@ const sqlite = require('sqlite');
 const BotConfig = require('./config.json');
 const client = new Discord.Client();
 const Aigis = require('./aigis');
-sqlite.open('./database/main.db');
+const http = require('http');
+const fs = require('fs');
+const qs = require('querystring');
+const canduit = require('canduit');
 
+
+sqlite.open('./database/main.db');
+const server = http.createServer((req, res) => {
+    res.end();
+});
 
 const launch = async () => {
-    Aigis.init(BotConfig, sqlite, client);
+    Aigis.init(BotConfig, sqlite, client, canduit);
     Aigis.setPresence(); //expand to full event register in future
     const commands = await directoryReader("./commands/");
     console.log(`Read ${commands.length} command files`);
@@ -35,6 +43,25 @@ const launch = async () => {
         }
     });
 
+    server.on('request', (req, res) => {
+        if (req.url.includes('phab-story')) {
+            console.log('story!');
+            var body = '';
+            req.on('data', function (data) {
+                body += data;
+                if (body.length > 1e6)
+                    request.connection.destroy();
+            });
+
+            req.on('end', function () {
+                var post = qs.parse(body);
+                Aigis.phabStory(post);
+                //console.log(post);
+            });
+        };
+    });
+
+    server.listen(8888);
     client.login(BotConfig.app_token);
 }
 
