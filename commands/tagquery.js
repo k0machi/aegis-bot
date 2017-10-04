@@ -11,7 +11,7 @@
             channel.send({
                 embed: {
                     author: {
-                        name: result.db.tagname,
+                        name: `Tag: "${result.db.tagname}"`,
                         icon_url: user.avatarURL
                     },
                     title: 'Information',

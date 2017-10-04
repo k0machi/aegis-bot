@@ -5,13 +5,13 @@
     var guild = message.guild;
     var channel = message.channel;
 
-    if (gname.length > 16) { channel.send('Tag name is too long.'); return false; };
-    if (gname.includes('@')) { channel.send('Tag contains illegal symbols.'); return false; };
-    if (gname.length < 1) { channel.send('Name is too short.'); return false; };
+    if (gname.length > 16) throw { message: 'Tag name is too long.' }
+    if (gname.includes('@')) throw { message: 'Tag contains illegal symbols.'}
+    if (gname.length < 1) throw { message: 'Name is too short.' }
     try {
         member = await message.guild.members.find('id', user.id);
         role = await bot.checkTag(gname, guild);
-        //console.log(role);
+        console.log(`checking role presence`);
         if (role) {
             rv = await member.addRole(role.role, 'User tag added');
             channel.send('I\'ve tagged you with "' + role.role.name + '"');
@@ -19,17 +19,14 @@
         }
         else {
             tagmode = await bot.getTagMode(guild);
+            console.log(`checking tagmode`);
             if (tagmode) {
                 perm = await bot.verifyPermission(user, guild, "MANAGE_ROLES");
-                if (!perm) {
-                    channel.send("Missing permissions for creating a tag.");
-                    return false;
-                }
+                console.log(`checking permissions`);
+                if (!perm) throw { message: "Missing permissions for creating a tag." }
             }
-            if (bot.checkUserBlacklist(member)) {
-                channel.send("No.");
-                return false;
-            }
+            console.log(`checking blacklist`);
+            if (bot.checkUserBlacklist(member)) throw { message: 'Blacklisted user.' }
             tag = await bot.createTag(gname, guild, user, Date.now());
             rv = await member.addRole(tag, 'User tag');
             channel.send('I\'ve tagged you with "' + tag.name + '"');

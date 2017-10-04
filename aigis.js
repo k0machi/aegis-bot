@@ -45,13 +45,17 @@
         }
     },
 
-    processCommand: function (message) {
+    processCommand: async function (message) {
         const args = message.content.slice(this.config.command_prefix.length).trim().split(/ +/g);
         const command = args.shift();
         const cmd = this.commands[command] || this.commands[this.aliases[command]];
         if (!cmd)
             return;
-        cmd.exec(this, message, args);
+        try {
+            await cmd.exec(this, message, args);
+        } catch (e) {
+            message.channel.send(e.message);
+        }
     },
 
     switchTagMode: async function (guild, message) {

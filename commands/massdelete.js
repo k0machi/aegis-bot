@@ -4,17 +4,15 @@
     var guild = message.guild;
     var channel = message.channel;
     var user = message.author;
-
-    guild.fetchMember(user).then((member) => {
-        if (member.hasPermission("MANAGE_MESSAGES", false, true)) {
-            channel.send('Okay.').then(() => {
-                channel.bulkDelete(amount + 2);
-                bot.logToDB(member.id, message.createdTimestamp, 'DELETE_MESSAGE', [amount, member.user.username + ' deleted ' + amount + ' messages from channel ' + message.channel.name], message.guild);
-            });
-        } else {
-            channel.send('No.');
-        }
-    });
+    var member = await guild.fetchMember(user);
+    if (bot.verifyPermission(user, guild, "MANAGE_MESSAGES")) {
+        channel.send('Okay.').then(() => {
+            channel.bulkDelete(amount + 2);
+            bot.logToDB(member.id, message.createdTimestamp, 'DELETE_MESSAGE', [amount, member.user.username + ' deleted ' + amount + ' messages from channel ' + message.channel.name], message.guild);
+        });
+    } else {
+        channel.send('No.');
+    }
 }
 
 module.exports.meta = {

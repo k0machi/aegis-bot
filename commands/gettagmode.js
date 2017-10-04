@@ -1,6 +1,6 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     mode = await bot.getTagMode(message.guild);
-    message.channel.send(mode);      
+    message.channel.send(mode ? `Protected` : `Public`);      
 }
 
 module.exports.meta = {
