@@ -12,6 +12,11 @@
         object: null,
         bot: null,
         story: null,
+        destroy: function () {
+            this.author = null,
+            this.story = null,
+            this.object = null
+        },
         cbAuthor: function (err, author) {
             this.author = author;
             if (this.author && this.object) this.send();
@@ -25,8 +30,6 @@
             if (!guild) throw { message: 'Not a member of dev guild' };
             channel = guild.channels.find('id', this.bot.config.phab_story_channel_id);
             if (!guild) throw { message: 'Unknown channel' };
-            console.log(this.author.data[0].fields);
-            console.log(this.object[Object.keys(this.object)[0]]);
 
             rv = channel.send({
                 embed: {
@@ -48,7 +51,7 @@
                         }
                     ]
                 }
-            });
+            }).then(this.destroy.bind(this));
         }
     },
 
@@ -57,12 +60,8 @@
         this.client = client;
         this.sql = sql;
         this.pfx = this.config.command_prefix;
-        this.canduit = canduit;
+        this.conduit_endpoint = canduit;
         this.phabStoryBuilder.bot = this;
-        new canduit({ api: this.config.phab_host, user: "Aegis", token: this.config.phab_api_token }, (error, result) => {
-            console.log(result);
-            this.conduit_endpoint = result;
-        })
     },
 
     phabStory: function (post) {

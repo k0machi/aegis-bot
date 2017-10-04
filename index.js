@@ -8,7 +8,7 @@ const Aigis = require('./aigis');
 const http = require('http');
 const fs = require('fs');
 const qs = require('querystring');
-const canduit = require('canduit');
+const createCanduit = require('canduit');
 
 
 sqlite.open('./database/main.db');
@@ -17,7 +17,8 @@ const server = http.createServer((req, res) => {
 });
 
 const launch = async () => {
-    Aigis.init(BotConfig, sqlite, client, canduit);
+    var conduit = createCanduit({ api: BotConfig.phab_host, user: "Aegis", token: BotConfig.phab_api_token }, () => { console.log("Conduit Init") });
+    Aigis.init(BotConfig, sqlite, client, conduit);
     Aigis.setPresence(); //expand to full event register in future
     const commands = await directoryReader("./commands/");
     console.log(`Read ${commands.length} command files`);
