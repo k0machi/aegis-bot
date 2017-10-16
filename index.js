@@ -56,7 +56,7 @@ const launch = async () => {
 
             req.on('end', function () {
                 var post = qs.parse(body);
-                Aigis.phabStory(post);
+                Aigis.phabricator.phabStory(post);
                 //console.log(post);
             });
         };

@@ -1,76 +1,22 @@
-﻿module.exports = {
+﻿const phabricator = require("./phabricator/phabricator.js");
+module.exports = {
     client: null,
     sql: null,
     config: null,
-    canduit: null,
-    conduit_endpoint: null,
+    phabricator: phabricator,
     pfx: '',
     commands: {},
     aliases: {},
-    phabStoryBuilder: {
-        author: null,
-        object: null,
-        bot: null,
-        story: null,
-        destroy: function () {
-            this.author = null,
-            this.story = null,
-            this.object = null
-        },
-        cbAuthor: function (err, author) {
-            this.author = author;
-            if (this.author && this.object) this.send();
-        },
-        cbObject: function (err, object) {
-            this.object = object;
-            if (this.author && this.object) this.send();
-        },
-        send: function () {
-            guild = this.bot.client.guilds.find('id', this.bot.config.phab_story_guild_id);
-            if (!guild) throw { message: 'Not a member of dev guild' };
-            channel = guild.channels.find('id', this.bot.config.phab_story_channel_id);
-            if (!guild) throw { message: 'Unknown channel' };
-
-            rv = channel.send({
-                embed: {
-                    title: this.object[Object.keys(this.object)[0]].name,
-                    url: this.object[Object.keys(this.object)[0]].uri,
-                    author: {
-                        name: this.author.data[0].fields.username,
-                        url: "https://dev.onozuka.info",
-                        icon_url: "https://dev.onozuka.info/res/phabricator/65905ecd/rsrc/favicons/apple-touch-icon-152x152.png"
-                    },
-                    fields: [
-                        {
-                            name: this.object[Object.keys(this.object)[0]].typeName,
-                            value: this.story.storyText
-                        },
-                        {
-                            name: "Status",
-                            value: this.object[Object.keys(this.object)[0]].status
-                        }
-                    ]
-                }
-            }).then(this.destroy.bind(this));
-        }
-    },
 
     init: function(config, sql, client, canduit) {
         this.config = config;
         this.client = client;
         this.sql = sql;
         this.pfx = this.config.command_prefix;
-        this.conduit_endpoint = canduit;
-        this.phabStoryBuilder.bot = this;
+        this.phabricator = phabricator;
+        this.phabricator.init(this, canduit);
     },
-
-    phabStory: function (post) {
-        this.phabStoryBuilder.story = post;
-        this.conduit_endpoint.exec('user.search', { constraints: { phids: [post.storyAuthorPHID] }, attachments: { avatar: true } }, this.phabStoryBuilder.cbAuthor.bind(this.phabStoryBuilder));
-        this.conduit_endpoint.exec('phid.query', { phids: [post["storyData[objectPHID]"]] }, this.phabStoryBuilder.cbObject.bind(this.phabStoryBuilder));
-    },
-
-
+    
     setPresence: function ()
     {
         this.client.on('ready', async () => {
@@ -182,7 +128,7 @@
                 if (!(member.roles.has(role.role.id))) { channel.send('You don\'t seem to have this role.'); return false };
                 rv = await member.removeRole(role.role, 'User tag removed');
                 channel.send('Tag "' + role.role.name + '" removed!');
-                if (role.role.members.array().length == 0) this.deleteTag(role.role.name, guild, channel, this.client.user);
+                if (role.role.members.array().length === 0) this.deleteTag(role.role.name, guild, channel, this.client.user);
                 return true;
             }
             else {
@@ -197,6 +143,5 @@
 
     logToDB: function (id, time, cmd, args, guild) {
         this.sql.run('INSERT INTO History ([User_Id], [Time], [Action], [Arguments], [Guild]) VALUES (?, ?, ?, ?, ?)', [id, time, cmd, JSON.stringify(args), guild.id]);
-    },
-
+    }
 };

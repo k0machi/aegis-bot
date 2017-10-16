@@ -61,11 +61,22 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="index.js" />
+    <Compile Include="phabricator\phabricator.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="phabricator\templates\generic.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="phabricator\templates\task.js">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="discord-tag-bot" />
     <Folder Include="database\" />
     <Folder Include="commands\" />
+    <Folder Include="phabricator\" />
+    <Folder Include="phabricator\templates\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.sample.json" />

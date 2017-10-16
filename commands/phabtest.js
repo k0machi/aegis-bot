@@ -1,5 +1,5 @@
 ﻿module.exports.exec = async (bot, message, args) => {
-    bot.phabStory({
+    bot.phabricator.phabStory({
         storyID: '1738',
         storyType: 'PhabricatorApplicationTransactionFeedStory',
         'storyData[objectPHID]': 'PHID-TASK-giwbfh4l4vrqpamgztvz',
