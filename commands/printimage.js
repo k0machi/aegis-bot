@@ -8,7 +8,7 @@
     jimp.read(fileName)
         .then(function (image) {
             processedImage = image;
-            return jimp.loadFont(jimp.FONT_SANS_32_BLACK);
+            return jimp.loadFont('./resources/printimage/fonts/segoe_20/segoe_20.fnt');
         })
         .then(function (font) {
             var fileName = Math.floor(Date.now());
@@ -22,11 +22,11 @@
             var writtenPath = `./temp/${fileName}.png`;
             var channel = message.channel; 
             processedImage.write(writtenPath, function () {
-                channel.send('Here you go', {
+                /*channel.send('Here you go', {
                     files: [
                         writtenPath
                     ]
-                });
+                });*/
             }); 
         })
         .catch(function (err) {
@@ -37,7 +37,7 @@
 module.exports.meta = {
     action: "printimage",
     active: true,
-    aliases: ["printimg"],
+    aliases: ["printimg", "aisay"],
     permissions: "ALL"
 }
 
