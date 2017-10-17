@@ -56,13 +56,13 @@ module.exports = {
         if (!channel) throw { message: 'Unknown channel' };
         let template = this.templates[this.object[Object.keys(this.object)[0]].type];
 
-        if (template)
+        if (template.key)
             template.build(this.object, this.author, this.story, this.conduit_endpoint, channel);
         else {
             let template = this.templates["GENERIC"];
             template.build(this.object, this.author, this.story, this.conduit_endpoint, channel);
         };
 
-        this.destroy.bind(this);
+        this.destroy();
     }
 };
