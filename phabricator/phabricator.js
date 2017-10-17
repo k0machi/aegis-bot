@@ -42,11 +42,17 @@ module.exports = {
 
     cbAuthor: function (err, author) {
         this.author = author;
+	console.log(author);
         if (this.author && this.object) this.send();
     },
 
     cbObject: function (err, object) {
+	if (object.length === 0) {
+		this.destroy();
+		return;
+	};
         this.object = object;
+	console.log(object);
         if (this.author && this.object) this.send();
     },
 
@@ -57,7 +63,7 @@ module.exports = {
         if (!channel) throw { message: 'Unknown channel' };
         let template = this.templates[this.object[Object.keys(this.object)[0]].type];
 
-        if (template.key)
+        if (template)
             template.build(this.object, this.author, this.story, this.conduit_endpoint, channel);
         else {
             let template = this.templates["GENERIC"];
