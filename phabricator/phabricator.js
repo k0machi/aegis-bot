@@ -35,6 +35,7 @@ module.exports = {
 
     phabStory: function (post) {
         this.story = post;
+        console.log(post);
         this.conduit_endpoint.exec('user.search', { constraints: { phids: [post.storyAuthorPHID] }, attachments: { avatar: true } }, this.cbAuthor.bind(this));
         this.conduit_endpoint.exec('phid.query', { phids: [post["storyData[objectPHID]"]] }, this.cbObject.bind(this));
     },
