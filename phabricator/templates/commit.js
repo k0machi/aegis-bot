@@ -29,7 +29,7 @@
         url: null, //this.object[Object.keys(this.object)[0]].uri,
         author: {
             name: null, //this.author.data[0].fields.username,
-            url: "https://dev.onozuka.info/maniphest",
+            url: "https://dev.onozuka.info/diffusion",
             icon_url: "https://dev.onozuka.info/res/phabricator/65905ecd/rsrc/favicons/apple-touch-icon-152x152.png"
         },
         fields: [

@@ -43,17 +43,17 @@ module.exports = {
 
     cbAuthor: function (err, author) {
         this.author = author;
-	console.log(author);
+	    console.log(author);
         if (this.author && this.object) this.send();
     },
 
     cbObject: function (err, object) {
-	if (object.length === 0) {
+	if (object.length === 0) { //If we have no access to the object an empty array is returned - check for it and abort building message
 		this.destroy();
 		return;
 	};
         this.object = object;
-	console.log(object);
+	    console.log(object);
         if (this.author && this.object) this.send();
     },
 
