@@ -1,19 +1,23 @@
 ﻿module.exports = {
+    key: "TASK",
     object: null,
     author: null,
     story: null,
     channel: null,
+
     callback: function (err, object) {
         console.log(object.data[0].fields);
         this.template.fields[0].name = object.data[0].fields.name;
         this.template.fields[1].value = object.data[0].fields.priority.name;
         this.send(this.channel);
     },
+
     send: async function (channel) {
         rv = channel.send({
             embed: this.template
         })
     },
+
     build: function (object, author, story, endpoint, channel) {
         this.object = object;
         this.author = author;
@@ -27,8 +31,8 @@
         this.template.fields[0].name = this.object[Object.keys(this.object)[0]].typeName;
         this.template.fields[0].value = this.story.storyText;
         this.template.fields[2].value = this.object[Object.keys(this.object)[0]].status;
-        return this;
     },
+
     template: {
         title: null, //this.object[Object.keys(this.object)[0]].name,
         url: null, //this.object[Object.keys(this.object)[0]].uri,
