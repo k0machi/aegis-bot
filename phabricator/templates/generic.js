@@ -22,6 +22,7 @@
         this.template.author.name = this.object[Object.keys(this.object)[0]].typeName;
         this.template.fields[0].name = this.object[Object.keys(this.object)[0]].typeName;
         this.template.fields[0].value = this.story.storyText;
+        this.template.fields[1].value = `The object type ${this.object[Object.keys(this.object)[0]].type} is missing its template`;
         this.send(this.channel);
     },
     template: {
@@ -39,7 +40,7 @@
             },
             {
                 name: "Warning",
-                value: `The object type ${this.object[Object.keys(this.object)[0]].type} is missing its template`,
+                value: null,
             }
         ]
     }
