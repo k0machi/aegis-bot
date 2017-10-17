@@ -20,7 +20,7 @@
         this.template.title = this.object[Object.keys(this.object)[0]].name;
         this.template.url = this.object[Object.keys(this.object)[0]].uri;
         this.template.author.name = this.object[Object.keys(this.object)[0]].typeName;
-        this.template.fields[0].name = this.object[Object.keys(this.object)[0]].typeName;
+        this.template.fields[0].name = (new Date(parseInt(this.story.epoch, 10) * 1000)).toUTCString();
         this.template.fields[0].value = this.story.storyText;
         this.template.fields[1].value = `The object type ${this.object[Object.keys(this.object)[0]].type} is missing its template`;
         this.send(this.channel);
