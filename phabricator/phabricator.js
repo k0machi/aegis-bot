@@ -20,6 +20,7 @@ module.exports = {
                 if (template.split(".").slice(-1)[0] != 'js') throw { e: "Not a js file " };
                 let temp = require("./templates/" + template);
                 if (!temp.key) throw { e: "Missing template key" };
+                console.log(`Loading template: ${temp.key}`);
                 that.templates[temp.key] = temp;
             } catch (e) {
                 console.log(e);
