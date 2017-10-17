@@ -1,20 +1,28 @@
-﻿const phabricator = require("./phabricator/phabricator.js");
+﻿const Phabricator = require("./phabricator/phabricator.js");
 module.exports = {
     client: null,
     sql: null,
     config: null,
-    phabricator: phabricator,
+    canduit: null,
+    phabricator: null,
     pfx: '',
     commands: {},
     aliases: {},
+
+    postPhabStory: function (post) {
+        var phab = Object.create(Phabricator);
+        phab.init(this, this.canduit);
+        phab.phabStory(post);
+    },
 
     init: function(config, sql, client, canduit) {
         this.config = config;
         this.client = client;
         this.sql = sql;
         this.pfx = this.config.command_prefix;
-        this.phabricator = phabricator;
-        this.phabricator.init(this, canduit);
+        //this.phabricator = phabricator;
+        this.canduit = canduit;
+        //this.phabricator.init(this, canduit);
     },
     
     setPresence: function ()
