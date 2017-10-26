@@ -23,6 +23,9 @@
     <Compile Include="commands\anothercommand.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="commands\assignmember.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="commands\gettagmode.js">
       <SubType>Code</SubType>
     </Compile>
@@ -67,6 +70,10 @@
     <Folder Include="commands\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="commands\assignmember.exampleconfig" />
+    <Content Include="commands\assignmember.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="config.sample.json" />
     <Content Include="config.json">
       <SubType>Code</SubType>
