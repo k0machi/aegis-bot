@@ -23,8 +23,9 @@ const launch = async () => {
 
     commands.forEach(file => {
         try {
-            var command = require(`./commands/${file}`);
+            console.log(file.split("."));
             if (file.split(".").slice(-1)[0] !== "js") return;
+            var command = require(`./commands/${file}`);
             console.log(`Loading command ${command.help(BotConfig.command_prefix).pretty}`);
             Aigis.registerCommand(command.meta.action, command);
             let aliases = command.meta.aliases;
@@ -32,7 +33,7 @@ const launch = async () => {
                 Aigis.registerAlias(alias, command.meta.action);
             });
         } catch (e) {
-            console.log(`Unable to log files: ${file}: ${e}`);
+            console.log(`Unable to parse files: ${file}: ${e}`);
         }
     });
 
