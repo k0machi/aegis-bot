@@ -5,11 +5,18 @@ const sqlite = require('sqlite');
 const BotConfig = require('./config.json');
 const client = new Discord.Client();
 const Aigis = require('./aigis');
+const http = require('http');
+const fs = require('fs');
+const qs = require('querystring');
+const createCanduit = require('canduit');
 sqlite.open('./database/main.db');
-
+const server = http.createServer((req, res) => {
+    res.end();
+});
 
 const launch = async () => {
-    Aigis.init(BotConfig, sqlite, client);
+    var conduit = createCanduit({ api: BotConfig.phab_host, user: "Aegis", token: BotConfig.phab_api_token }, () => { console.log("Conduit Init") });
+    Aigis.init(BotConfig, sqlite, client, conduit);
     Aigis.setPresence(); //expand to full event register in future
     const commands = await directoryReader("./commands/");
     console.log(`Read ${commands.length} command files`);
@@ -35,6 +42,25 @@ const launch = async () => {
         }
     });
 
+    server.on('request', (req, res) => {
+        if (req.url.includes('phab-story')) {
+            console.log('story!');
+            var body = '';
+            req.on('data', function (data) {
+                body += data;
+                if (body.length > 1e6)
+                    request.connection.destroy();
+            });
+
+            req.on('end', function () {
+                var post = qs.parse(body);
+                Aigis.postPhabStory(post);
+                //console.log(post);
+            });
+        };
+    });
+
+    server.listen(8888);
     client.login(BotConfig.app_token);
 }
 

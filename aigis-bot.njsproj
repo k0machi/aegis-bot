@@ -17,6 +17,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Compile Include="commands\phabtest.js" />
     <Compile Include="commands\aigis.js">
       <SubType>Code</SubType>
     </Compile>
@@ -60,11 +61,25 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="index.js" />
+    <Compile Include="phabricator\phabricator.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="phabricator\templates\paste.js" />
+    <Compile Include="phabricator\templates\commit.js" />
+    <Compile Include="phabricator\templates\project.js" />
+    <Compile Include="phabricator\templates\generic.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="phabricator\templates\task.js">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="discord-tag-bot" />
     <Folder Include="database\" />
     <Folder Include="commands\" />
+    <Folder Include="phabricator\" />
+    <Folder Include="phabricator\templates\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.sample.json" />
