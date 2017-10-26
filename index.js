@@ -23,7 +23,6 @@ const launch = async () => {
 
     commands.forEach(file => {
         try {
-            console.log(file.split("."));
             if (file.split(".").slice(-1)[0] !== "js") return;
             var command = require(`./commands/${file}`);
             console.log(`Loading command ${command.help(BotConfig.command_prefix).pretty}`);
