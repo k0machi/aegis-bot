@@ -18,9 +18,11 @@
     "url": "https://gitlab.onozuka.info/komachi/aegis-bot.git"
   },
   "dependencies": {
+    "axios": "^0.17.0",
     "discord.js": "latest",
     "sqlite": "^2.8.0",
-    "steam-web": "0.6.0"
+    "steam-web": "0.6.0",
+    "uuid": "^3.1.0"
   },
   "main": "index.js",
   "devDependencies": {},

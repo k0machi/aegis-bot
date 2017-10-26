@@ -1,0 +1,9 @@
+// rename to assignmember.json
+// gid is steam group id
+// group name is discord group name you want to assign
+// also json does not support comments so remove this when done
+{
+  "groups": {
+    "gid": "Group Name"
+  }
+}
