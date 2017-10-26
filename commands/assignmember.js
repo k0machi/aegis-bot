@@ -34,8 +34,13 @@
         console.log(tokenData.token);
         if (tokenData.token == playerData.realname) {
             const msg = await message.channel.send("Token verified. You are now a member of following groups: " + groupsToAssign.join());
+            for (let i = 0; i < groupsToAssign.length; i++)
+            {
+                let role = await message.guild.roles.find('name', groupsToAssign[i]);
+                let rv = await message.member.addRole(role, `A new ${role.name} joins! ${message.author.username}`);
+            }
             //TODO: actually assign groups
-            return false;
+            //return false;
         } else {
             throw { message: "Token `"+tokenData.token+"` not found in profile" };
         }
