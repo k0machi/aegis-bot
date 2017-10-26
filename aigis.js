@@ -1,18 +1,29 @@
-﻿module.exports = {
+﻿const Phabricator = require("./phabricator/phabricator.js");
+module.exports = {
     client: null,
     sql: null,
     config: null,
+    canduit: null,
+    phabricator: null,
     pfx: '',
     commands: {},
     aliases: {},
 
-    init: function(config, sql, client) {
+    postPhabStory: function (post) {
+        var message = Object.create(this.phabricator.message_factory);
+        message.init(post, this.canduit, this);
+    },
+
+    init: function(config, sql, client, canduit) {
         this.config = config;
         this.client = client;
         this.sql = sql;
         this.pfx = this.config.command_prefix;
+        this.phabricator = Phabricator;
+        this.canduit = canduit;
+        this.phabricator.init();
     },
-
+    
     setPresence: function ()
     {
         this.client.on('ready', async () => {
@@ -124,7 +135,7 @@
                 if (!(member.roles.has(role.role.id))) { channel.send('You don\'t seem to have this role.'); return false };
                 rv = await member.removeRole(role.role, 'User tag removed');
                 channel.send('Tag "' + role.role.name + '" removed!');
-                if (role.role.members.array().length == 0) this.deleteTag(role.role.name, guild, channel, this.client.user);
+                if (role.role.members.array().length === 0) this.deleteTag(role.role.name, guild, channel, this.client.user);
                 return true;
             }
             else {
@@ -139,6 +150,5 @@
 
     logToDB: function (id, time, cmd, args, guild) {
         this.sql.run('INSERT INTO History ([User_Id], [Time], [Action], [Arguments], [Guild]) VALUES (?, ?, ?, ?, ?)', [id, time, cmd, JSON.stringify(args), guild.id]);
-    },
-
+    }
 };

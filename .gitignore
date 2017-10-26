@@ -5,3 +5,4 @@ config.json
 /bin
 /database/*
 /temp/*
+/.idea/
