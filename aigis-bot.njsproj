@@ -39,6 +39,9 @@
     <Compile Include="commands\meow.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="commands\printimage.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="commands\tagcreate.js">
       <SubType>Code</SubType>
     </Compile>
@@ -78,6 +81,7 @@
     <Folder Include="discord-tag-bot" />
     <Folder Include="database\" />
     <Folder Include="commands\" />
+    <Folder Include="resources\" />
     <Folder Include="phabricator\" />
     <Folder Include="phabricator\templates\" />
   </ItemGroup>

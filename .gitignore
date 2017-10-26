@@ -4,4 +4,5 @@ config.json
 /obj/Debug
 /bin
 /database/*
+/temp/*
 /.idea/
