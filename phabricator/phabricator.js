@@ -62,13 +62,10 @@ module.exports = {
             if (!guild) throw { message: 'Not a member of dev guild' };
             channel = guild.channels.find('id', this.bot.config.phab_story_channel_id);
             if (!channel) throw { message: 'Unknown channel' };
-            var template = new ph.templates[ph_obj.type](this.object, this.author, this.story, this.bot.canduit, channel);
-            
-            if (template)
-                template.build(this.object, this.author, this.story, this.bot.canduit, channel);
-            else {
-                let template = this.templates["GENERIC"];
-                template.build(this.object, this.author, this.story, this.bot.canduit, channel);
+            try {
+                var template = new ph.templates[ph_obj.type](this.object, this.author, this.story, this.bot.canduit, channel);
+            } catch (e) {
+                var template = new ph.templates["GEN0"](this.object, this.author, this.story, this.bot.canduit, channel);
             };
         }
     }
