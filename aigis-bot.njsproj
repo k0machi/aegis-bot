@@ -64,6 +64,9 @@
     <Compile Include="phabricator\phabricator.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="phabricator\templates\paste.js" />
+    <Compile Include="phabricator\templates\commit.js" />
+    <Compile Include="phabricator\templates\project.js" />
     <Compile Include="phabricator\templates\generic.js">
       <SubType>Code</SubType>
     </Compile>

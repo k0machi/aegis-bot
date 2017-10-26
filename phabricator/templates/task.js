@@ -1,6 +1,21 @@
-﻿const { promisify } = require("util");
+﻿function Template(object, author, story, endpoint, channel) {
+    this.object = object;
+    this.author = author;
+    this.story = story;
+    this.channel = channel;
+    var task = this.object[Object.keys(object)[0]];
+    this.taskid = task.name.split("T")[1];
+    endpoint.exec('maniphest.search', { constraints: { phids: [task.phid] } }, this.callback.bind(this));
+    endpoint.exec('maniphest.gettasktransactions', { ids: [parseInt(this.taskid)] }, this.callbackComments.bind(this));
+    this.template.title = task.name;
+    this.template.url = task.uri;
+    this.template.author.name = task.typeName;
+    this.template.fields[3].value = (new Date(parseInt(this.story.epoch, 10) * 1000)).toUTCString();
+    this.template.fields[0].value = this.story.storyText;
+    this.template.fields[2].value = task.status;
+}
 
-module.exports = {
+Template.prototype = {
     key: "TASK",
     taskid: null,
     comments: null,
@@ -12,7 +27,6 @@ module.exports = {
     commentFlag: false,
 
     callback: function (err, object) {
-        console.log(object.data[0].fields);
         this.template.fields[0].name = object.data[0].fields.name;
         this.template.fields[1].value = object.data[0].fields.priority.name;
         this.taskFlag = true;
@@ -40,21 +54,7 @@ module.exports = {
     },
 
     build: function (object, author, story, endpoint, channel) {
-        this.object = object;
-        this.author = author;
-        this.story = story;
-        this.channel = channel;
-        var task = this.object[Object.keys(object)[0]];
-        this.taskid = task.name.split("T")[1];
-        console.log(object);
-        endpoint.exec('maniphest.search', { constraints: { phids: [task.phid] } }, this.callback.bind(this));
-        endpoint.exec('maniphest.gettasktransactions', { ids: [parseInt(this.taskid)] }, this.callbackComments.bind(this));
-        this.template.title = task.name;
-        this.template.url = task.uri;
-        this.template.author.name = task.typeName;
-        this.template.fields[3].value = (new Date(parseInt(this.story.epoch, 10) * 1000)).toUTCString();
-        this.template.fields[0].value = this.story.storyText;
-        this.template.fields[2].value = task.status;
+        
     },
 
     destroy: function () {
@@ -93,4 +93,6 @@ module.exports = {
             }
         ]
     }
-};
+}
+
+module.exports = Template;

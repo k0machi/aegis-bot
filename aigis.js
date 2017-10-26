@@ -10,9 +10,8 @@ module.exports = {
     aliases: {},
 
     postPhabStory: function (post) {
-        var phab = Object.create(Phabricator);
-        phab.init(this, this.canduit);
-        phab.phabStory(post);
+        var message = Object.create(this.phabricator.message_factory);
+        message.init(post, this.canduit, this);
     },
 
     init: function(config, sql, client, canduit) {
@@ -20,9 +19,9 @@ module.exports = {
         this.client = client;
         this.sql = sql;
         this.pfx = this.config.command_prefix;
-        //this.phabricator = phabricator;
+        this.phabricator = Phabricator;
         this.canduit = canduit;
-        //this.phabricator.init(this, canduit);
+        this.phabricator.init();
     },
     
     setPresence: function ()

@@ -9,8 +9,6 @@ const http = require('http');
 const fs = require('fs');
 const qs = require('querystring');
 const createCanduit = require('canduit');
-
-
 sqlite.open('./database/main.db');
 const server = http.createServer((req, res) => {
     res.end();

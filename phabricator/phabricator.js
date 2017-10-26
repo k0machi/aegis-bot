@@ -2,18 +2,12 @@
 const dirRead = promisify(require("fs").readdir);
 
 module.exports = {
-    author: null,
-    object: null,
     bot: null,
-    story: null,
     templates: {},
     conduit_endpoint: null,
 
-    init: async function (bot, endpoint) {
+    init: async function () {
         var that = this;
-        this.bot = bot;
-        this.endpoint = endpoint;
-        this.conduit_endpoint = endpoint;
         let template_f = await dirRead("./phabricator/templates");
         template_f.forEach(function(template) {
             try {
@@ -28,49 +22,54 @@ module.exports = {
         });
     },
 
-    destroy: function () {
-        this.author = null;
-        this.story = null;
-        this.object = null;
-    },
+    message_factory: {
+        author: null,
+        object: null,
+        story: null,
+        bot: null,
 
-    phabStory: function (post) {
-        this.story = post;
-        console.log(post);
-        this.conduit_endpoint.exec('user.search', { constraints: { phids: [post.storyAuthorPHID] }, attachments: { avatar: true } }, this.cbAuthor.bind(this));
-        this.conduit_endpoint.exec('phid.query', { phids: [post["storyData[objectPHID]"]] }, this.cbObject.bind(this));
-    },
+        destroy: function () {
+            this.author = null;
+            this.story = null;
+            this.object = null;
+        },
 
-    cbAuthor: function (err, author) {
-        this.author = author;
-	    console.log(author);
-        if (this.author && this.object) this.send();
-    },
+        init: function (post, conduit_endpoint, bot) {
+            this.story = post;
+            this.bot = bot;
+            conduit_endpoint.exec('user.search', { constraints: { phids: [post.storyAuthorPHID] }, attachments: { avatar: true } }, this.cbAuthor.bind(this));
+            conduit_endpoint.exec('phid.query', { phids: [post["storyData[objectPHID]"]] }, this.cbObject.bind(this));
+        },
 
-    cbObject: function (err, object) {
-	if (object.length === 0) { //If we have no access to the object an empty array is returned - check for it and abort building message
-		this.destroy();
-		return;
-	};
-        this.object = object;
-	    console.log(object);
-        if (this.author && this.object) this.send();
-    },
+        cbAuthor: function (err, author) {
+            this.author = author;
+            if (this.author && this.object) this.send();
+        },
 
-    send: function () {
-        guild = this.bot.client.guilds.find('id', this.bot.config.phab_story_guild_id);
-        if (!guild) throw { message: 'Not a member of dev guild' };
-        channel = guild.channels.find('id', this.bot.config.phab_story_channel_id);
-        if (!channel) throw { message: 'Unknown channel' };
-        let template = this.templates[this.object[Object.keys(this.object)[0]].type];
+        cbObject: function (err, object) {
+            if (object.length === 0) { //If we have no access to the object an empty array is returned - check for it and abort building message
+                this.destroy();
+                return;
+            };
+            this.object = object;
+            if (this.author && this.object) this.send();
+        },
 
-        if (template)
-            template.build(this.object, this.author, this.story, this.conduit_endpoint, channel);
-        else {
-            let template = this.templates["GENERIC"];
-            template.build(this.object, this.author, this.story, this.conduit_endpoint, channel);
-        };
-
-        this.destroy();
+        send: function () {
+            var ph = this.bot.phabricator;
+            var ph_obj = this.object[Object.keys(this.object)[0]];
+            guild = this.bot.client.guilds.find('id', this.bot.config.phab_story_guild_id);
+            if (!guild) throw { message: 'Not a member of dev guild' };
+            channel = guild.channels.find('id', this.bot.config.phab_story_channel_id);
+            if (!channel) throw { message: 'Unknown channel' };
+            var template = new ph.templates[ph_obj.type](this.object, this.author, this.story, this.bot.canduit, channel);
+            
+            if (template)
+                template.build(this.object, this.author, this.story, this.bot.canduit, channel);
+            else {
+                let template = this.templates["GENERIC"];
+                template.build(this.object, this.author, this.story, this.bot.canduit, channel);
+            };
+        }
     }
 };
