@@ -36,15 +36,15 @@
 module.exports.meta = {
     action: "tagquery",
     active: true,
-    aliases: [],
+    aliases: ['tq'],
     permissions: "ALL"
 }
 
 module.exports.help = function (pfx) {
     var data = {
-        pretty: "Tag query",
-        description: "Pretty prints tag",
-        examples: `Type ${pfx}${this.meta.action} to do something or whatever`
+        pretty: "Query a tag",
+        description: "Displays infromation about a tag, such as: creation date, creator and name",
+        examples: `${pfx}${this.meta.action} <name>`
     };
 
     return data;

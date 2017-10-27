@@ -42,15 +42,15 @@
 module.exports.meta = {
     action: "tagme",
     active: true,
-    aliases: [],
+    aliases: ['tgm'],
     permissions: "ALL"
 }
 
 module.exports.help = function (pfx) {
     var data = {
-        pretty: "Tag me",
-        description: "Adds a tag to you",
-        examples: `Type ${pfx}${this.meta.action} to do something or whatever`
+        pretty: "Tag a user",
+        description: "Creates (if it doesn't exist) a tag and auto-assigns it on a user who requested the tag",
+        examples: `${pfx}${this.meta.action} <name>`
     };
 
     return data;

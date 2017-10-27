@@ -5,7 +5,7 @@
         return;
     }
     if (message.mentions.members.array().length == 0 && args[0] != bot.config.purgeKey) {
-        message.channel.send(`Global purge requested! Please type \`${bot.pfx}tagpurge ${bot.config.purgeKey}\` to confirm this action!!`)
+        message.channel.send(`Global purge requested! Please type \`${bot.pfx}${this.meta.action} ${bot.config.purgeKey}\` to confirm this action!!`)
     } else if (message.mentions.members.array().length > 0) {
         message.mentions.members.forEach(async (mbr) => {
             console.log(mbr.id);
@@ -34,15 +34,15 @@
 module.exports.meta = {
     action: "tagpurge",
     active: true,
-    aliases: [],
+    aliases: ['tp'],
     permissions: "ALL"
 }
 
 module.exports.help = function (pfx) {
     var data = {
-        pretty: "Tag purge",
-        description: "Remov on steroids",
-        examples: `Type ${pfx}${this.meta.action} to do something or whatever`
+        pretty: "Purge tags",
+        description: "Purges **all** tags (requires confirmation) or purges tags created by a specific user(s)",
+        examples: `${pfx}${this.meta.action} [ <@mention> [ <@mention2> <@mentionN> ]]`
     };
 
     return data;

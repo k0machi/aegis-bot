@@ -22,15 +22,15 @@
 module.exports.meta = {
     action: "tagmode",
     active: true,
-    aliases: [],
+    aliases: ['tm'],
     permissions: "ALL"
 }
 
 module.exports.help = function (pfx) {
     var data = {
-        pretty: "Switch tagmode",
-        description: "Cucks you and uncucks you",
-        examples: `Type ${pfx}${this.meta.action} to do something or whatever`
+        pretty: "Switch tag modes",
+        description: "Switches who can create tags - public allows anyone to create new tags, protected requires a user to posses `Manage Roles` permission",
+        examples: `${pfx}${this.meta.action}`
     };
 
     return data;

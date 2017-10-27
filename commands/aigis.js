@@ -51,8 +51,7 @@ module.exports.help = function (pfx) {
     var data = {
         pretty: "Help",
         description: "Provides an overview of available commands",
-        examples: `**${pfx}tagme** *<tagname>* - Sets an @ - able tag on you. \n**${pfx}untagme** *<tagname>* - Removes a tag from you.\n
-**${pfx}help** \`-more\` for a full list of commands or ${pfx}help *<commandname>* for help on that command`
+        examples: `**${pfx}help** \`-more\` for a full list of commands or ${pfx}help *<commandname>* for help on that command`
     };
 
     return data;

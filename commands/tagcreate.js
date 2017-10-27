@@ -20,15 +20,15 @@
 module.exports.meta = {
     action: "tagcreate",
     active: true,
-    aliases: [],
+    aliases: ['tc'],
     permissions: "ALL"
 }
 
 module.exports.help = function (pfx) {
     var data = {
-        pretty: "Tag create",
-        description: "Like kebab",
-        examples: `Type ${pfx}${this.meta.action} to do something or whatever`
+        pretty: "Create a tag",
+        description: "Creates a tag that can be later assigned with `tagme` command",
+        examples: `${pfx}${this.meta.action} <tagname>`
     };
 
     return data;

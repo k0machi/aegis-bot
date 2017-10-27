@@ -24,8 +24,8 @@ module.exports.meta = {
 module.exports.help = function (pfx) {
     var data = {
         pretty: "Conduit API Test",
-        description: "Queries users on phabricator install",
-        examples: `**${pfx}phabtest** - Resolves users on phabricator`
+        description: "Sends a test feed story to the bot",
+        examples: `**${pfx}${this.meta.action}**`
     };
 
     return data;

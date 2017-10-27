@@ -13,7 +13,7 @@ module.exports.help = function(pfx) {
     var data = {
         pretty: "Boo!",
         description: "Peek-a-boo!",
-        examples: `Type ${pfx}${this.meta.action} to meow you dumb fuck`
+        examples: `Type ${pfx}${this.meta.action} to spook yourself`
     };
 
     return data;

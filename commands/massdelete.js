@@ -18,15 +18,15 @@
 module.exports.meta = {
     action: "deletemsg",
     active: true,
-    aliases: [],
+    aliases: ['rm'],
     permissions: "ALL"
 }
 
 module.exports.help = function (pfx) {
     var data = {
-        pretty: "Mass delete",
-        description: "Fucks shit up yo",
-        examples: `Type ${pfx}${this.meta.action} to do something or whatever`
+        pretty: "Mass remove messages",
+        description: "Removes bulk amount of messages from the channel",
+        examples: `${pfx}${this.meta.action} <amount>`
     };
 
     return data;

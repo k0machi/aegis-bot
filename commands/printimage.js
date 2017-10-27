@@ -45,7 +45,7 @@ module.exports.help = function(pfx) {
     var data = {
         pretty: "Print on image",
         description: "Prints your dumb text on image",
-        examples: `Type ${pfx}${this.meta.action} <text> to print it out`
+        examples: `${pfx}${this.meta.action} <text>`
     };
 
     return data;

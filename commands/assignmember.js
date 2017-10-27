@@ -110,9 +110,9 @@ module.exports.meta = {
 
 module.exports.help = function (pfx) {
     var data = {
-        pretty: "Verify membership in steam group",
-        description: "Assigns Member group after verifying your steam profile",
-        examples: `Type ${pfx}${this.meta.action} <your steam url> to get started`
+        pretty: "Verify membership in a steam group(s)",
+        description: "Assigns eligible server roles after verifying your steam profile",
+        examples: `${pfx}${this.meta.action} <your steam url>`
     };
 
     return data;

@@ -6,15 +6,15 @@
 module.exports.meta = {
     action: "logcommand",
     active: true,
-    aliases: [],
+    aliases: ['lc'],
     permissions: "ALL"
 }
 
 module.exports.help = function (pfx) {
     var data = {
         pretty: "Log command",
-        description: "For debug and such",
-        examples: `Type ${pfx}${this.meta.action} to do something or whatever`
+        description: "Test SQL History table",
+        examples: `${pfx}${this.meta.action}`
     };
 
     return data;

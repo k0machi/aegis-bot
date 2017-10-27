@@ -31,15 +31,15 @@
 module.exports.meta = {
     action: "untagme",
     active: true,
-    aliases: [],
+    aliases: ['utg'],
     permissions: "ALL"
 }
 
 module.exports.help = function (pfx) {
     var data = {
-        pretty: "Untag me",
-        description: "Removes tag from you",
-        examples: `Type ${pfx}${this.meta.action} to do something or whatever`
+        pretty: "Remove a tag from user",
+        description: "Removes tag from you, optionally deleting a tag if no user has it anymore",
+        examples: `${pfx}${this.meta.action} <name>`
     };
 
     return data;

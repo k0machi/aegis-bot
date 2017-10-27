@@ -5,15 +5,15 @@
 module.exports.meta = {
     action: "tagdelete",
     active: true,
-    aliases: [],
+    aliases: ['td'],
     permissions: "ALL"
 }
 
 module.exports.help = function (pfx) {
     var data = {
-        pretty: "Tag remov",
-        description: "Like kebab",
-        examples: `Type ${pfx}${this.meta.action} to do something or whatever`
+        pretty: "Delete a tag",
+        description: "Removes a tag from the server",
+        examples: `${pfx}${this.meta.action} <tagname>`
     };
 
     return data;

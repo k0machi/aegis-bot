@@ -29,15 +29,15 @@
 module.exports.meta = {
     action: "history",
     active: true,
-    aliases: [],
+    aliases: ['his'],
     permissions: "ALL"
 }
 
 module.exports.help = function (pfx) {
     var data = {
         pretty: "History",
-        description: "Shows history",
-        examples: `Type ${pfx}${this.meta.action} to do something or whatever`
+        description: "Shows command history",
+        examples: `${pfx}${this.meta.action} outputs commands history`
     };
 
     return data;
