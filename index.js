@@ -2,11 +2,11 @@ const { promisify } = require("util");
 const directoryReader = promisify(require("fs").readdir);
 const Discord = require('discord.js');
 const sqlite = require('sqlite');
-const BotConfig = require('./config.json');
 const client = new Discord.Client();
 const Aigis = require('./aigis');
 const http = require('http');
 const fs = require('fs');
+const yaml = require('js-yaml');
 const qs = require('querystring');
 const createCanduit = require('canduit');
 sqlite.open('./database/main.db');
@@ -15,19 +15,23 @@ const server = http.createServer((req, res) => {
 });
 
 const launch = async () => {
+    const BotConfig = yaml.safeLoad(fs.readFileSync('./config.yml', 'utf8'));
     var conduit = createCanduit({ api: BotConfig.phab_host, user: "Aegis", token: BotConfig.phab_api_token }, () => { console.log("Conduit Init") });
-    Aigis.init(BotConfig, sqlite, client, conduit);
+    Aigis.init(BotConfig, sqlite, client, conduit, yaml, fs);
     Aigis.setPresence(); //expand to full event register in future
     const commands = await directoryReader("./commands/");
-    console.log(`Read ${commands.length} command files`);
 
     commands.forEach(file => {
         try {
-            if (file.split(".").slice(-1)[0] !== "js") return;
-            var command = require(`./commands/${file}`);
+            var command = require(`./commands/${file}/index.js`);
             console.log(`Loading command ${command.help(BotConfig.command_prefix).pretty}`);
+            var settings = yaml.safeLoad(fs.readFileSync(`./commands/${file}/command.yml`, 'utf8'));
+            if (settings.active === false) {
+                console.log(command.help(BotConfig.command_prefix).pretty + ' is disabled, skipping...');
+                return;
+            }
             Aigis.registerCommand(command.meta.action, command);
-            let aliases = command.meta.aliases;
+            let aliases = settings.aliases;
             aliases.forEach( (alias) => {
                 Aigis.registerAlias(alias, command.meta.action);
             });
@@ -55,7 +59,6 @@ const launch = async () => {
             req.on('end', function () {
                 var post = qs.parse(body);
                 Aigis.postPhabStory(post);
-                //console.log(post);
             });
         };
     });

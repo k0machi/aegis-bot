@@ -6,4 +6,5 @@ config.json
 /database/*
 /temp/*
 /.idea/
-/commands/*.json
+command.yml
+config.yml

@@ -1,10 +1,12 @@
-﻿const Phabricator = require("./phabricator/phabricator.js");
+﻿const Phabricator = require("./commands/phabricator/phabricator.js");
 module.exports = {
     client: null,
     sql: null,
     config: null,
     canduit: null,
     phabricator: null,
+    yaml: null,
+    fs: null,
     pfx: '',
     commands: {},
     aliases: {},
@@ -14,10 +16,12 @@ module.exports = {
         message.init(post, this.canduit, this);
     },
 
-    init: function(config, sql, client, canduit) {
+    init: function(config, sql, client, canduit, yaml, fs) {
         this.config = config;
         this.client = client;
         this.sql = sql;
+        this.yaml = yaml;
+        this.fs = fs;
         this.pfx = this.config.command_prefix;
         this.phabricator = Phabricator;
         this.canduit = canduit;
@@ -150,5 +154,9 @@ module.exports = {
 
     logToDB: function (id, time, cmd, args, guild) {
         this.sql.run('INSERT INTO History ([User_Id], [Time], [Action], [Arguments], [Guild]) VALUES (?, ?, ?, ?, ?)', [id, time, cmd, JSON.stringify(args), guild.id]);
+    },
+
+    parseYAML: function (path) {
+        return this.yaml.safeLoad(this.fs.readFileSync(path, 'utf8'))
     }
 };
