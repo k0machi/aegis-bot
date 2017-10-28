@@ -1,0 +1,12 @@
+#your discord bot token
+app_token:
+#steam web api developer token 
+steam_api_token: 
+#phrase you have to type to confirm that you really meant it for some actions
+purge_key: CAST IN GODS NAME YE NOT GUILTY
+#bot will only react to commands that start with this character(s)
+command_prefix: "!!"
+phab_story_guild_id: 
+phab_story_channel_id: 
+phab_api_token: 
+phab_host:
