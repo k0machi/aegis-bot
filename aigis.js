@@ -32,7 +32,17 @@ module.exports = {
         this.canduit = canduit;
         this.phabricator.init(canduit, this);
     },
-    
+
+    sayHello: async function (member, gid) {
+        wmsg = await this.sql.get('SELECT * FROM WelcomeMessages WHERE guildId == ?', [gid]);
+        if (!wmsg) return;
+        guild = this.client.guilds.find('id', wmsg.GuildId);
+        if (!guild) throw { message: 'WMSG: Guild not found' };
+        channel = guild.channels.find('id', wmsg.ChannelId);
+        if (!channel) throw { message: 'WMSG: Unknown channel' };
+        channel.send(member + ", " + wmsg.Message);
+    },
+
     setPresence: function ()
     {
         this.client.on('ready', async () => {

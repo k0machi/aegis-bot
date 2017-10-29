@@ -46,6 +46,10 @@ const launch = async () => {
         }
     });
 
+    client.on('guildMemberAdd', member => {
+        Aigis.sayHello(member, member.guild.id)
+    });
+
     server.on('request', (req, res) => {
         if (req.url.includes('phab-story')) {
             if (Aigis.debug) console.log('Endpoint phab-story called');
