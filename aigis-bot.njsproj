@@ -17,86 +17,14 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
-    <Compile Include="commands\phabtest.js" />
-    <Compile Include="commands\aigis.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\anothercommand.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\assignmember.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\gettagmode.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\history.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\logcommand.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\massdelete.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\meow.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\printimage.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\tagcreate.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\tagdelete.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\tagmode.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\tagme.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\tagpurge.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\tagquery.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="commands\untagme.js">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="index.js" />
-    <Compile Include="phabricator\phabricator.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="phabricator\templates\paste.js" />
-    <Compile Include="phabricator\templates\commit.js" />
-    <Compile Include="phabricator\templates\project.js" />
-    <Compile Include="phabricator\templates\generic.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="phabricator\templates\task.js">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="discord-tag-bot" />
     <Folder Include="database\" />
     <Folder Include="commands\" />
     <Folder Include="resources\" />
-    <Folder Include="phabricator\" />
-    <Folder Include="phabricator\templates\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="commands\assignmember.exampleconfig" />
-    <Content Include="commands\assignmember.json">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="config.sample.json" />
-    <Content Include="config.json">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="package.json">
       <SubType>Code</SubType>
     </Content>
