@@ -11,12 +11,10 @@
 
     wmsg = await bot.sql.get('SELECT * FROM WelcomeMessages WHERE guildId == ?', [message.guild.id]);
     if (wmsg) {
-        wmsg = await bot.sql.run('UPDATE WelcomeMessages SET [Message] = ? WHERE GuildId == ?', [text, wmsg.GuildId]);
+        wmsg = await bot.sql.run('UPDATE WelcomeMessages SET [Message] = ?, [ChannelId] = ? WHERE GuildId == ?', [text, channel.id, wmsg.GuildId]);
     } else {
         wmsg = await bot.sql.run('INSERT INTO WelcomeMessages ([Message], [GuildId], [ChannelId]) VALUES (?, ?, ?)', [text, message.guild.id, channel.id]);
     }
-
-    if (bot.debug) console.log(text, "\n", channel);
 
     const msg = await message.channel.send(`Welcome message set for ${message.guild.name} channel: ${channel}`);
 }
