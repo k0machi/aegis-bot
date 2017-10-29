@@ -6,7 +6,13 @@ steam_api_token:
 purge_key: CAST IN GODS NAME YE NOT GUILTY
 #bot will only react to commands that start with this character(s)
 command_prefix: "!!"
+#phabricator-related configuration
+#guild and channel id to post phabricator feed
 phab_story_guild_id: 
 phab_story_channel_id: 
+#api token
 phab_api_token: 
+#url
 phab_host:
+#array of Phabricator Space PHIDs to be hidden
+phab_hidden_spaces: []

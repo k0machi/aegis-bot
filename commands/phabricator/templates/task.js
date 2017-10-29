@@ -1,8 +1,9 @@
-﻿function Template(object, author, story, endpoint, channel) {
+﻿function Template(object, author, story, bot, channel) {
     this.object = object;
     this.author = author;
     this.story = story;
     this.channel = channel;
+    this.bot = bot;
     var task = this.object[Object.keys(object)[0]];
     this.taskid = task.name.split("T")[1];
     this.template = {
@@ -20,11 +21,11 @@
             },
             {
                 name: "Priority",
-                value: null,
+                value: null
             },
             {
                 name: "Status",
-                value: null, //this.object[Object.keys(this.object)[0]].status
+                value: null //this.object[Object.keys(this.object)[0]].status
             },
             {
                 name: "Time",
@@ -32,8 +33,8 @@
             }
         ]
     };
-    endpoint.exec('maniphest.search', { constraints: { phids: [task.phid] } }, this.callback.bind(this));
-    endpoint.exec('maniphest.gettasktransactions', { ids: [parseInt(this.taskid)] }, this.callbackComments.bind(this));
+    bot.phabricator.endpoint.exec('maniphest.search', { constraints: { phids: [task.phid] } }, this.callback.bind(this));
+    bot.phabricator.endpoint.exec('maniphest.gettasktransactions', { ids: [parseInt(this.taskid)] }, this.callbackComments.bind(this));
     this.template.title = task.name;
     this.template.url = task.uri;
     this.template.author.name = task.typeName;
@@ -48,6 +49,20 @@ Template.prototype = {
     commentFlag: false,
 
     callback: function (err, object) {
+        if (this.bot.debug) {
+            console.log(
+                "-------------------TASK CALLBACK-------------------\n",
+                object,
+                "\n",
+                object.data[0].fields,
+                "\n",
+                "-------------------TASK CALLBACK-------------------"
+            );
+        }
+        if (!this.bot.phabricator.check_space(object.data[0].fields.spacePHID)) {
+            if (this.bot.debug) console.log("(!!) Restricted space encountered: ", object.data[0].fields.spacePHID);
+            return false;
+        }
         this.template.fields[0].name = object.data[0].fields.name;
         this.template.fields[1].value = object.data[0].fields.priority.name;
         this.taskFlag = true;
@@ -56,13 +71,12 @@ Template.prototype = {
 
     callbackComments: function (err, object) {
         var storyTransaction = this.story[Object.keys(this.story)[3]];
-        this.comments = (object[this.taskid]).find(function (element) {
+        this.comments = object[this.taskid].find(function (element) {
             return element.transactionPHID === storyTransaction;
         }).comments;
-        console.log(this.comments);
         if (this.comments) {
             this.template.fields.push({ name: "Comment", value: this.comments });
-        };
+        }
         this.commentFlag = true;
         if (this.taskFlag && this.commentFlag) this.send(this.channel);
     },
@@ -70,8 +84,8 @@ Template.prototype = {
     send: async function (channel) {
         rv = channel.send({
             embed: this.template
-        })
+        });
     }
-}
+};
 
 module.exports = Template;

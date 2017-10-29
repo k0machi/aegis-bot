@@ -1,4 +1,4 @@
-﻿function Template(object, author, story, endpoint, channel) {
+﻿function Template(object, author, story, bot, channel) {
     this.object = object;
     this.author = author;
     this.story = story;
@@ -34,8 +34,8 @@ Template.prototype = {
     send: async function (channel) {
         rv = channel.send({
             embed: this.template
-        })
+        });
     }
-}
+};
 
 module.exports = Template;

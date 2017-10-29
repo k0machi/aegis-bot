@@ -1,4 +1,4 @@
-﻿function Template(object, author, story, endpoint, channel) {
+﻿function Template(object, author, story, bot, channel) {
     this.object = object;
     this.author = author;
     this.story = story;
@@ -18,7 +18,7 @@
             },
             {
                 name: "Warning",
-                value: null,
+                value: null
             }
         ]
     };
@@ -29,7 +29,7 @@
     this.template.fields[0].value = this.story.storyText;
     this.template.fields[1].value = `The object type ${this.object[Object.keys(this.object)[0]].type} is missing its template`;
     this.send(this.channel);
-};
+}
 
 Template.prototype = {
     key: "GEN0",
@@ -39,7 +39,7 @@ Template.prototype = {
     send: async function (channel) {
         rv = channel.send({
             embed: this.template
-        })
+        });
     }
 };
 

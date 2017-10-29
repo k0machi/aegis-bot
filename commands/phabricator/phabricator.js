@@ -4,22 +4,33 @@ const dirRead = promisify(require("fs").readdir);
 module.exports = {
     bot: null,
     templates: {},
-    conduit_endpoint: null,
+    endpoint: null,
 
-    init: async function () {
+    init: async function (canduit, bot) {
         var that = this;
+        this.endpoint = canduit;
+        this.bot = bot;
         let template_f = await dirRead(__dirname + "/templates");
         template_f.forEach(function(template) {
             try {
-                if (template.split(".").slice(-1)[0] != 'js') throw { e: "Not a js file " };
+                if (template.split(".").slice(-1)[0] !== 'js') throw { e: "Not a js file " };
                 let temp = require(__dirname + "/templates/" + template);
                 if (!temp.prototype.key) throw { e: "Missing template key" };
                 console.log(`Loading template: ${temp.prototype.key}`);
                 that.templates[temp.prototype.key] = temp;
             } catch (e) {
                 console.log(e);
-            };
+            }
         });
+    },
+
+    check_space: function (space_phid) {
+        if (this.bot.config.phab_hidden_spaces.includes(space_phid)) {
+            if (this.bot.debug) console.log("check_space");
+            return false;
+        } else {
+            return true;
+        }
     },
 
     message_factory: {
@@ -34,11 +45,11 @@ module.exports = {
             this.object = null;
         },
 
-        init: function (post, conduit_endpoint, bot) {
+        init: function (post, bot) {
             this.story = post;
             this.bot = bot;
-            conduit_endpoint.exec('user.search', { constraints: { phids: [post.storyAuthorPHID] }, attachments: { avatar: true } }, this.cbAuthor.bind(this));
-            conduit_endpoint.exec('phid.query', { phids: [post["storyData[objectPHID]"]] }, this.cbObject.bind(this));
+            bot.phabricator.endpoint.exec('user.search', { constraints: { phids: [post.storyAuthorPHID] }, attachments: { avatar: true } }, this.cbAuthor.bind(this));
+            bot.phabricator.endpoint.exec('phid.query', { phids: [post["storyData[objectPHID]"]] }, this.cbObject.bind(this));
         },
 
         cbAuthor: function (err, author) {
@@ -50,12 +61,22 @@ module.exports = {
             if (object.length === 0) { //If we have no access to the object an empty array is returned - check for it and abort building message
                 this.destroy();
                 return;
-            };
+            }
             this.object = object;
             if (this.author && this.object) this.send();
         },
 
         send: function () {
+            if (this.bot.debug)
+                console.log(
+                    "-------------------BEGIN FEED STORY DUMP-------------------\n",
+                    this.story,
+                    "\n",
+                    this.author,
+                    "\n",
+                    this.object,
+                    "\n-------------------END FEED STORY DUMP-------------------\n"
+                );
             var ph = this.bot.phabricator;
             var ph_obj = this.object[Object.keys(this.object)[0]];
             guild = this.bot.client.guilds.find('id', this.bot.config.phab_story_guild_id);
@@ -63,10 +84,12 @@ module.exports = {
             channel = guild.channels.find('id', this.bot.config.phab_story_channel_id);
             if (!channel) throw { message: 'Unknown channel' };
             try {
-                var template = new ph.templates[ph_obj.type](this.object, this.author, this.story, this.bot.canduit, channel);
+                //TODO:
+                //Separate exception handling with undefined template handling
+                new ph.templates[ph_obj.type](this.object, this.author, this.story, this.bot, channel);
             } catch (e) {
-                var template = new ph.templates["GEN0"](this.object, this.author, this.story, this.bot.canduit, channel);
-            };
+                new ph.templates["GEN0"](this.object, this.author, this.story, this.bot, channel);
+            }
         }
     }
 };

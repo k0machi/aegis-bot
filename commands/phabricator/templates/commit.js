@@ -1,4 +1,4 @@
-﻿function Template(object, author, story, endpoint, channel) {
+﻿function Template(object, author, story, bot, channel) {
     this.object = object;
     this.author = author;
     this.story = story;
@@ -24,7 +24,7 @@
     this.template.fields[0].name = (new Date(parseInt(this.story.epoch, 10) * 1000)).toUTCString();
     this.template.fields[0].value = this.story.storyText;
     this.send(this.channel);
-};
+}
 
 Template.prototype = {
     key: "CMIT",
@@ -34,7 +34,7 @@ Template.prototype = {
     send: async function (channel) {
         rv = channel.send({
             embed: this.template
-        })
+        });
     }
 };
 
