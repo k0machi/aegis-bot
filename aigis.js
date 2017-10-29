@@ -1,5 +1,6 @@
 ﻿const Phabricator = require("./commands/phabricator/phabricator.js");
 module.exports = {
+    debug: false,
     client: null,
     sql: null,
     config: null,
@@ -13,10 +14,14 @@ module.exports = {
 
     postPhabStory: function (post) {
         var message = Object.create(this.phabricator.message_factory);
-        message.init(post, this.canduit, this);
+        message.init(post, this);
     },
 
-    init: function(config, sql, client, canduit, yaml, fs) {
+    init: function (config, sql, client, canduit, yaml, fs, process) {
+        if (process.argv.includes("--aidebug")) {
+            this.debug = true;
+            console.log("Debug mode");
+        }
         this.config = config;
         this.client = client;
         this.sql = sql;
@@ -25,7 +30,7 @@ module.exports = {
         this.pfx = this.config.command_prefix;
         this.phabricator = Phabricator;
         this.canduit = canduit;
-        this.phabricator.init();
+        this.phabricator.init(canduit, this);
     },
     
     setPresence: function ()
@@ -75,7 +80,7 @@ module.exports = {
 
     switchTagMode: async function (guild, message) {
         perm = await this.verifyPermission(message.author, guild, "MANAGE_ROLES");
-        if (!perm) { message.channel.send('Missing permission!'); return; };
+        if (!perm) { message.channel.send('Missing permission!'); return; }
         mode = await this.sql.get('SELECT * FROM TagModeData WHERE guildId == ?', [guild.id]);
         if (mode) {
             md = await this.sql.run('UPDATE TagModeData SET [mode] = ? WHERE guildid == ?', [!mode.mode, mode.guildId]);
@@ -109,7 +114,7 @@ module.exports = {
             color: '00e5ff',
             permissions: 0,
             mentionable: true
-        }, `${user.username} requested a non-existent user-defined tag`)
+        }, `${user.username} requested a non-existent user-defined tag`);
         result = await this.sql.run('INSERT INTO UserTags ([tagname], [roleid], [guildid], [creatorid], [createdTimestamp]) VALUES (?,?,?,?,?)', [tagname, role.id, guild.id, user.id, time]);
         if (!result) throw { message: 'Error accessing database' };
         return role;
@@ -118,7 +123,7 @@ module.exports = {
     deleteTag: async function (tagname, guild, channel, user) {
         var result;
         perm = await this.verifyPermission(user, guild, "MANAGE_ROLES");
-        if (!perm) { channel.send('No.'); return; };
+        if (!perm) { channel.send('No.'); return; }
         try {
             role = await this.checkTag(tagname, guild);
             if (!role) throw { message: 'Role doesn\'t exist' };
@@ -136,7 +141,7 @@ module.exports = {
             member = await guild.members.find('id', user.id);
             role = await this.checkTag(gname, guild);
             if (role) {
-                if (!(member.roles.has(role.role.id))) { channel.send('You don\'t seem to have this role.'); return false };
+                if (!member.roles.has(role.role.id)) { channel.send('You don\'t seem to have this role.'); return false; }
                 rv = await member.removeRole(role.role, 'User tag removed');
                 channel.send('Tag "' + role.role.name + '" removed!');
                 if (role.role.members.array().length === 0) this.deleteTag(role.role.name, guild, channel, this.client.user);
@@ -157,6 +162,6 @@ module.exports = {
     },
 
     parseYAML: function (path) {
-        return this.yaml.safeLoad(this.fs.readFileSync(path, 'utf8'))
+        return this.yaml.safeLoad(this.fs.readFileSync(path, 'utf8'));
     }
 };

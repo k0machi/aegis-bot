@@ -16,8 +16,8 @@ const server = http.createServer((req, res) => {
 
 const launch = async () => {
     const BotConfig = yaml.safeLoad(fs.readFileSync('./config.yml', 'utf8'));
-    var conduit = createCanduit({ api: BotConfig.phab_host, user: "Aegis", token: BotConfig.phab_api_token }, () => { console.log("Conduit Init") });
-    Aigis.init(BotConfig, sqlite, client, conduit, yaml, fs);
+    var conduit = createCanduit({ api: BotConfig.phab_host, user: "Aegis", token: BotConfig.phab_api_token }, () => { console.log("Conduit Init"); });
+    Aigis.init(BotConfig, sqlite, client, conduit, yaml, fs, process);
     Aigis.setPresence(); //expand to full event register in future
     const commands = await directoryReader("./commands/");
 
@@ -32,7 +32,7 @@ const launch = async () => {
             }
             Aigis.registerCommand(command.meta.action, command);
             let aliases = settings.aliases;
-            aliases.forEach( (alias) => {
+            aliases.forEach((alias) => {
                 Aigis.registerAlias(alias, command.meta.action);
             });
         } catch (e) {
@@ -48,7 +48,7 @@ const launch = async () => {
 
     server.on('request', (req, res) => {
         if (req.url.includes('phab-story')) {
-            console.log('story!');
+            if (Aigis.debug) console.log('Endpoint phab-story called');
             var body = '';
             req.on('data', function (data) {
                 body += data;
@@ -60,11 +60,11 @@ const launch = async () => {
                 var post = qs.parse(body);
                 Aigis.postPhabStory(post);
             });
-        };
+        }
     });
 
     server.listen(8888);
     client.login(BotConfig.app_token);
-}
+};
 
 launch();
