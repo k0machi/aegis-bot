@@ -1,8 +1,7 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     let help = this.help(bot.pfx);
     console.log(args);
-    if (args[0] == '-more')
-    {
+    if (args[0] === 'more') {
         let helpList = [];
         //SOPA DE JAVASCRIPTA
         //UMA DELICIA
@@ -23,6 +22,33 @@
                 fields: helpList
             }
         });
+    }
+    else if (args[0] && args[0].length > 0) {
+        try {
+            let cmd = bot.commands[args[0]];
+            if (bot.debug) console.log(cmd);
+            let help = cmd.help(bot.pfx);
+            message.channel.send({
+                embed: {
+                    author: {
+                        name: bot.client.user.username,
+                        icon_url: bot.client.user.avatarURL
+                    },
+                    title: cmd.meta.action,
+                    fields: [{
+                        name: help.pretty,
+                        value: help.description
+                    },
+                    {
+                        name: 'Examples',
+                        value: help.examples
+                    }
+                    ]
+                }
+            });
+        } catch (e) {
+            message.channel.send(e.message);
+        };
     } else {
         message.channel.send({
             embed: {
@@ -48,7 +74,7 @@ module.exports.help = function (pfx) {
     var data = {
         pretty: "Help",
         description: "Provides an overview of available commands",
-        examples: `**${pfx}help** \`-more\` for a full list of commands or ${pfx}help *<commandname>* for help on that command`
+        examples: `**${pfx}help more** for a full list of commands or ${pfx}help *<commandname>* for help on that command`
     };
 
     return data;
