@@ -28,13 +28,17 @@
             console.log(`checking blacklist`);
             if (bot.checkUserBlacklist(member)) throw { message: 'Blacklisted user.' }
 
-            var last = await bot.sql.get("SELECT * FROM TagCreators WHERE UserId = ? AND GuildId = ?", [member.user.id, member.guild.id]);
+            function findId(creator) {
+                return (creator.id === member.user.id && creator.gid === member.guild.id);
+            }
+
+            var last = await bot.tagCreators.find(findId);
 
             if (last && !perm) {
-                if (parseInt(message.createdTimestamp) < parseInt(last.Timestamp) + 900 * 1000) throw { message: "You're creating new tags too fast. Try again later." }
-                await bot.sql.run("UPDATE TagCreators SET [Timestamp] = ? WHERE [GuildId] = ? AND [UserId] = ?", [message.createdTimestamp, member.guild.id, member.user.id]);
+                if (parseInt(message.createdTimestamp) < parseInt(last.timestamp) + 900 * 1000) throw { message: "You're creating new tags too fast. Try again later." }
+                last.timestamp = message.createdTimestamp;
             } else if (!last && !perm) {
-                await bot.sql.run("INSERT INTO TagCreators ([UserId], [GuildId], [Timestamp]) VALUES (?,?,?)", [member.user.id, member.guild.id, message.createdTimestamp]);
+                bot.tagCreators.push({ id: member.user.id, gid: member.guild.id, timestamp: message.createdTimestamp });
             }
 
             tag = await bot.createTag(gname, guild, user, Date.now());

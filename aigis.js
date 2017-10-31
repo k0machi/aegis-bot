@@ -9,6 +9,7 @@ module.exports = {
     yaml: null,
     fs: null,
     pfx: '',
+    tagCreators: [],
     commands: {},
     aliases: {},
 
