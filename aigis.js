@@ -82,8 +82,9 @@ module.exports = {
         if (!cmd)
             return;
         try {
-            //TODO
-            //Handle all permissions here, before execution. Permission handling can throw
+            if (this.debug) console.log(`"${cmd.settings.permissions}"`);
+            perm = await this.verifyPermission(message.author, message.guild, cmd.settings.permissions);
+            if (!perm) throw { message: `Missing permissions: ${cmd.settings.permissions}` };
             await cmd.exec(this, message, args);
         } catch (e) {
             message.channel.send(e.message);
@@ -91,8 +92,6 @@ module.exports = {
     },
 
     switchTagMode: async function (guild, message) {
-        perm = await this.verifyPermission(message.author, guild, "MANAGE_ROLES");
-        if (!perm) { message.channel.send('Missing permission!'); return; }
         mode = await this.sql.get('SELECT * FROM TagModeData WHERE guildId == ?', [guild.id]);
         if (mode) {
             md = await this.sql.run('UPDATE TagModeData SET [mode] = ? WHERE guildid == ?', [!mode.mode, mode.guildId]);
@@ -134,8 +133,6 @@ module.exports = {
 
     deleteTag: async function (tagname, guild, channel, user) {
         var result;
-        perm = await this.verifyPermission(user, guild, "MANAGE_ROLES");
-        if (!perm) { channel.send('No.'); return; }
         try {
             role = await this.checkTag(tagname, guild);
             if (!role) throw { message: 'Role doesn\'t exist' };

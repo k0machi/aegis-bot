@@ -1,7 +1,7 @@
 active: true
 hidden: false
 aliases: ["stm"]
-permissions: "ALL"
+permissions: "SEND_MESSAGES"
 groups:
  7896702: Member
  1234567: Test

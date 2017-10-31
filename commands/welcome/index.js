@@ -1,7 +1,4 @@
 ﻿module.exports.exec = async (bot, message, args) => {
-    const localConfig = bot.parseYAML(__dirname + '/command.yml');
-    perm = await bot.verifyPermission(message.author, message.guild, localConfig.permissions);
-    if (!perm) throw { message: "Missing administrator permissions" };
 
     args.shift(); //discard channel mention
     let text = args.join(" ");

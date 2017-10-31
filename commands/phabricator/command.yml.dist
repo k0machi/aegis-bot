@@ -1,4 +1,4 @@
 active: true
 hidden: true
 aliases: ["pt", "cond"]
-permissions: "ALL"
+permissions: "ADMINISTRATOR"

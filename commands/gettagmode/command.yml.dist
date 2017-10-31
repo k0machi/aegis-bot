@@ -1,4 +1,4 @@
 active: true
 hidden: false
 aliases: ['gtm']
-permissions: "ALL"
+permissions: "SEND_MESSAGES"

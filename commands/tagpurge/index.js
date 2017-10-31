@@ -1,9 +1,5 @@
 ﻿module.exports.exec = async (bot, message, args) => {
-    perm = bot.verifyPermission(message.author, message.guild, "MANAGE_ROLES");
-    if (!perm) {
-        message.channel.send('Missing permissions!');
-        return;
-    }
+
     if (message.mentions.members.array().length == 0 && args[0] != bot.config.purgeKey) {
         message.channel.send(`Global purge requested! Please type \`${bot.pfx}${this.meta.action} ${bot.config.purgeKey}\` to confirm this action!!`)
     } else if (message.mentions.members.array().length > 0) {

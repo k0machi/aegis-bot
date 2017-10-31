@@ -30,6 +30,7 @@ const launch = async () => {
                 console.log(command.help(BotConfig.command_prefix).pretty + ' is disabled, skipping...');
                 return;
             }
+            command.settings = settings;
             Aigis.registerCommand(command.meta.action, command);
             let aliases = settings.aliases;
             aliases.forEach((alias) => {

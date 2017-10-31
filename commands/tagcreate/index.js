@@ -5,8 +5,6 @@
     var time = message.createdTimestamp;
     var channel = message.channel;
 
-    perm = await bot.verifyPermission(user, guild, "MANAGE_ROLES");
-    if (!perm) { channel.send('Missing permissions') };
     try {
         result = await bot.checkTag(tagname, guild);
         if (result) { channel.send('Tag already exists'); return };

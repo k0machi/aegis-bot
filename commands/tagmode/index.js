@@ -1,10 +1,5 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     var guild = message.guild;
-    perm = await bot.verifyPermission(message.author, guild, "MANAGE_ROLES");
-    if (!perm) {
-        message.channel.send('Missing permission!');
-        return;
-    }
     mode = await bot.sql.get('SELECT * FROM TagModeData WHERE guildId == ?', [guild.id]);
     if (mode) {
         md = await bot.sql.run('UPDATE TagModeData SET [mode] = ? WHERE guildid == ?', [!mode.mode, mode.guildId]);

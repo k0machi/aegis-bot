@@ -1,4 +1,4 @@
 active: true
 hidden: true
 aliases: ["wan", "caw"]
-permissions: "ALL"
+permissions: "SEND_MESSAGES"

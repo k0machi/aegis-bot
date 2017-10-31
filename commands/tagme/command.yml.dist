@@ -1,4 +1,4 @@
 active: true
 hidden: false
 aliases: ['tgm']
-permissions: "ALL"
+permissions: "SEND_MESSAGES"

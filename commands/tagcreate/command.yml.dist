@@ -1,4 +1,4 @@
 active: true,
 hidden: false
 aliases: ["tc"]
-permissions: "ALL"
+permissions: "MANAGE_ROLES"
