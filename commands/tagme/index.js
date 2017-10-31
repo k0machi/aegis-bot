@@ -19,14 +19,24 @@
         }
         else {
             tagmode = await bot.getTagMode(guild);
+            perm = await bot.verifyPermission(user, guild, "MANAGE_ROLES");
             console.log(`checking tagmode`);
             if (tagmode) {
-                perm = await bot.verifyPermission(user, guild, "MANAGE_ROLES");
                 console.log(`checking permissions`);
                 if (!perm) throw { message: "Missing permissions for creating a tag." }
             }
             console.log(`checking blacklist`);
             if (bot.checkUserBlacklist(member)) throw { message: 'Blacklisted user.' }
+
+            var last = await bot.sql.get("SELECT * FROM TagCreators WHERE UserId = ? AND GuildId = ?", [member.user.id, member.guild.id]);
+
+            if (last && !perm) {
+                if (parseInt(message.createdTimestamp) < parseInt(last.Timestamp) + 900 * 1000) throw { message: "You're creating new tags too fast. Try again later." }
+                await bot.sql.run("UPDATE TagCreators SET [Timestamp] = ? WHERE [GuildId] = ? AND [UserId] = ?", [message.createdTimestamp, member.guild.id, member.user.id]);
+            } else if (!last && !perm) {
+                await bot.sql.run("INSERT INTO TagCreators ([UserId], [GuildId], [Timestamp]) VALUES (?,?,?)", [member.user.id, member.guild.id, message.createdTimestamp]);
+            }
+
             tag = await bot.createTag(gname, guild, user, Date.now());
             rv = await member.addRole(tag, 'User tag');
             channel.send('I\'ve tagged you with "' + tag.name + '"');
