@@ -82,6 +82,8 @@ module.exports = {
         if (!cmd)
             return;
         try {
+            //TODO
+            //Handle all permissions here, before execution. Permission handling can throw
             await cmd.exec(this, message, args);
         } catch (e) {
             message.channel.send(e.message);
