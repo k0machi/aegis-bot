@@ -8,48 +8,51 @@
     if (gname.length > 16) throw { message: 'Tag name is too long.' }
     if (gname.includes('@')) throw { message: 'Tag contains illegal symbols.'}
     if (gname.length < 1) throw { message: 'Name is too short.' }
-    try {
-        member = await message.guild.members.find('id', user.id);
-        role = await bot.checkTag(gname, guild);
-        console.log(`checking role presence`);
-        if (role) {
-            rv = await member.addRole(role.role, 'User tag added');
-            channel.send('I\'ve tagged you with "' + role.role.name + '"');
-            return true;
-        }
-        else {
-            tagmode = await bot.getTagMode(guild);
-            perm = await bot.verifyPermission(user, guild, "MANAGE_ROLES");
-            console.log(`checking tagmode`);
-            if (tagmode) {
-                console.log(`checking permissions`);
-                if (!perm) throw { message: "Missing permissions for creating a tag." }
-            }
-            console.log(`checking blacklist`);
-            if (bot.checkUserBlacklist(member)) throw { message: 'Blacklisted user.' }
-
-            function findId(creator) {
-                return (creator.id === member.user.id && creator.gid === member.guild.id);
-            }
-
-            var last = await bot.tagCreators.find(findId);
-
-            if (last && !perm) {
-                if (parseInt(message.createdTimestamp) < parseInt(last.timestamp) + 900 * 1000) throw { message: "You're creating new tags too fast. Try again later." }
-                last.timestamp = message.createdTimestamp;
-            } else if (!last && !perm) {
-                bot.tagCreators.push({ id: member.user.id, gid: member.guild.id, timestamp: message.createdTimestamp });
-            }
-
-            tag = await bot.createTag(gname, guild, user, Date.now());
-            rv = await member.addRole(tag, 'User tag');
-            channel.send('I\'ve tagged you with "' + tag.name + '"');
-            return true;
-        }
+    member = await message.guild.members.find('id', user.id);
+    role = await bot.checkTag(gname, guild);
+    console.log(`checking role presence`);
+    if (role) {
+        rv = await member.addRole(role.role, 'User tag added');
+        channel.send('I\'ve tagged you with "' + role.role.name + '"');
+        return true;
     }
-    catch (e) {
-        channel.send(e.message);
-        console.log(e);
+    else {
+        tagmode = await bot.getTagMode(guild);
+        perm = await bot.verifyPermission(user, guild, "MANAGE_ROLES");
+        console.log(`checking tagmode`);
+        if (tagmode) {
+            console.log(`checking permissions`);
+            if (!perm) throw { message: "Missing permissions for creating a tag." }
+        }
+        console.log(`checking blacklist`);
+        if (bot.checkUserBlacklist(member)) throw { message: 'Blacklisted user.' }
+
+        
+            
+        if (!perm) {
+            try {
+                var cd = bot.cooldowns[member.guild.id][member.user.id]['tagme'];
+                if (parseInt(message.createdTimestamp) < parseInt(cd) + 900 * 1000) {
+                    message.channel.send("You're creating new tags too fast. Try again later.");
+                    return;
+                } else {
+                    cd = message.createdTimestamp;
+                }
+            } catch (e) {
+                var cd = bot.cooldowns[member.guild.id];
+                if (!cd) {
+                    bot.cooldowns[member.guild.id] = {};
+                    cd = bot.cooldowns[member.guild.id];
+                }
+                if (!cd[member.user.id]) cd[member.user.id] = {};
+                if (!cd[member.user.id]['tagme']) cd[member.user.id]['tagme'] = message.createdTimestamp;
+            }
+        };
+        
+        tag = await bot.createTag(gname, guild, user, Date.now());
+        rv = await member.addRole(tag, 'User tag');
+        channel.send('I\'ve tagged you with "' + tag.name + '"');
+        return true;
     }
 }
 
