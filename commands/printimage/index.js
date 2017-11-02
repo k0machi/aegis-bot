@@ -1,4 +1,4 @@
-﻿module.exports.exec = async (bot, message, args) => {
+﻿module.exports.exec = (bot, message, args) => {
     var gd = require('node-gd');
     var fileName = __dirname + '/resources/sign.png';
     var textToPrint = args.join(' ');
@@ -14,9 +14,10 @@
     let lines = [words[0]];
     let curLine = 0;
     let width = 242;
+    let szFont = 14
     for (let i = 1; i < words.length; i++)
     {
-        let szLine = image.stringFTBBox(txtColor, font, 11, 0, 0, 0, `${lines[curLine]} ${words[i]}`);
+        let szLine = image.stringFTBBox(txtColor, font, szFont, 0, 0, 0, `${lines[curLine]} ${words[i]}`);
         if (szLine[2] - szLine[0] < width)
         {
             lines[curLine] = `${lines[curLine]} ${words[i]}`;
@@ -29,7 +30,7 @@
     }
     let xOffset = 28;
     let yOffset = 84;
-    image.stringFT(txtColor, font, 11, 0, xOffset, yOffset, lines.join("\n"));
+    image.stringFT(txtColor, font, szFont, 0, xOffset, yOffset, lines.join("\n"));
     var fileName = Math.floor(Date.now());
     if (bot.debug) console.log("Saving...");
     let path = `./temp/${fileName}.png`;
