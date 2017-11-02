@@ -30,7 +30,7 @@
         const uuidv4 = require('uuid/v4');
         let token = uuidv4();
         ins = await bot.sql.run('INSERT INTO ' + tableName + '([discordid], [guildid], [token], [createdat]) VALUES (?, ?, ?, ?)', [discordId, guildId, token, Date.now()]);
-        const msg = await message.channel.send("Here is your token: ```" + token + "```\n\nGo to \"Edit Profile\", paste that into your profile's \"Real Name\" field and run `$$verify " + steamUrl + "` again.");
+        const msg = await message.channel.send(`Here is your token: \`\`\`${token} \`\`\`\n\nGo to \"Edit Profile\", paste that into your profile's \"Real Name\" field and run \`$$verify ${steamUrl.replace("`", "")}\` again.`);
     } else { //token data does exist, check user's profile
         var playerData = await getUserData(steamid);
         console.log(playerData.realname);
