@@ -1,38 +1,46 @@
 ﻿module.exports.exec = async (bot, message, args) => {
-    var jimp = require('jimp');
+    var gd = require('node-gd');
     var fileName = __dirname + '/resources/sign.png';
-    var processedImage;
     var textToPrint = args.join(' ');
-    if (textToPrint.length > 200) throw { message: "Your message is too long!" };
-    var pages = textToPrint.match(/.{1,15}/g);
+    if (textToPrint.length > 500) throw { message: "Your message is too long!" };
 
-    jimp.read(fileName)
-        .then(function (image) {
-            processedImage = image;
-            return jimp.loadFont(__dirname + '/resources/fonts/segoe_20/segoe_20.fnt');
-        })
-        .then(function (font) {
-            var fileName = Math.floor(Date.now());
-            let xOffset = 25;
-            let yOffset = 75;
-            for (var i = 0; i < pages.length; ++i) {
-                processedImage.print(font, xOffset, yOffset, pages[i]);
-                yOffset += 32;
-                xOffset += 2;
-            }
-            var writtenPath = `./temp/${fileName}.png`;
-            var channel = message.channel; 
-            processedImage.write(writtenPath, function () {
-                channel.send(`Here you go ${message.author}`, {
-                    files: [
-                        writtenPath
-                    ]
-                });
-            }); 
-        })
-        .catch(function (err) {
-            console.log(err);
-        });
+    if (bot.debug) console.log(`Opening ${fileName}`);
+    let image = gd.createFromPng(fileName);
+    if (bot.debug) console.log("Open ", image);
+    let font = `${__dirname}/resources/Roboto-Regular.ttf`;
+    let txtColor = image.colorAllocate(0, 0, 0);
+    if (bot.debug) console.log("CLR ALLOC ", txtColor);
+    let words = textToPrint.split(" ");
+    let lines = [words[0]];
+    let curLine = 0;
+    let width = 242;
+    for (let i = 1; i < words.length; i++)
+    {
+        let szLine = image.stringFTBBox(txtColor, font, 11, 0, 0, 0, `${lines[curLine]} ${words[i]}`);
+        if (szLine[2] - szLine[0] < width)
+        {
+            lines[curLine] = `${lines[curLine]} ${words[i]}`;
+        }
+        else
+        {
+            curLine++
+            lines[curLine] = words[i];
+        }
+    }
+    let xOffset = 28;
+    let yOffset = 84;
+    image.stringFT(txtColor, font, 11, 0, xOffset, yOffset, lines.join("\n"));
+    var fileName = Math.floor(Date.now());
+    if (bot.debug) console.log("Saving...");
+    let path = `./temp/${fileName}.png`;
+    image.savePng(path, 1, function (err) { if (err) throw err });
+    image.destroy();
+    message.channel.send(`Here you go ${message.author}`, {
+        files: [
+            path
+        ]
+    });
+
 }
 
 module.exports.meta = {
