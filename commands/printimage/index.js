@@ -3,6 +3,7 @@
     var fileName = __dirname + '/resources/sign.png';
     var processedImage;
     var textToPrint = args.join(' ');
+    if (textToPrint.length > 200) throw { message: "Your message is too long!" };
     var pages = textToPrint.match(/.{1,15}/g);
 
     jimp.read(fileName)
