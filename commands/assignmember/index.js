@@ -6,6 +6,8 @@
     var steamKey = bot.config.steam_api_token;
     const axios = require('axios');
     var steamUrl = args[0];
+    //Exit if user has any amount of roles
+    if (message.member.roles.array().length > 1) throw { message: 'You don\'t need that' }
 
     if (!steamUrl) throw { message: 'This does not look like a valid Steam URL' };
 
