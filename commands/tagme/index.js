@@ -10,7 +10,7 @@
     if (gname.length < 1) throw { message: 'Name is too short.' }
     member = await message.guild.members.find('id', user.id);
     role = await bot.checkTag(gname, guild);
-    console.log(`checking role presence`);
+    if (bot.debug) console.log(`checking role presence`);
     if (role) {
         rv = await member.addRole(role.role, 'User tag added');
         channel.send('I\'ve tagged you with "' + role.role.name + '"');
@@ -19,12 +19,12 @@
     else {
         tagmode = await bot.getTagMode(guild);
         perm = await bot.verifyPermission(message.member, "MANAGE_ROLES");
-        console.log(`checking tagmode`);
+        if (bot.debug) console.log(`checking tagmode`);
         if (tagmode) {
-            console.log(`checking permissions`);
+            if (bot.debug) console.log(`checking permissions`);
             if (!perm) throw { message: "Missing permissions for creating a tag." }
         }
-        console.log(`checking blacklist`);
+        if (bot.debug) console.log(`checking blacklist`);
         if (bot.checkUserBlacklist(member)) throw { message: 'Blacklisted user.' }
         
         tag = await bot.createTag(gname, guild, user, Date.now());

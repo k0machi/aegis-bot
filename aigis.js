@@ -47,9 +47,9 @@ module.exports = {
     setPresence: function ()
     {
         this.client.on('ready', async () => {
-            console.log('I am ready!');
+            console.log('Initialization finished.');
             this.client.user.setPresence({ game: { name: `say ${this.pfx}aigis`, type: 0 } });
-            console.log(this.aliases);
+            if (this.debug) console.log(this.aliases);
         });
     },
 
