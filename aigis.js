@@ -84,7 +84,7 @@ module.exports = {
         try {
             if (this.debug) console.log(`"${cmd.settings.permissions}"`);
             if (['dm', 'group'].includes(message.channel.type)) {
-                this.commands['aigis'].exec(this, message, args);
+                this.commands['aigis'].exec(this, message, [command]);
                 return
             }
             perm = await this.verifyPermission(message.member, cmd.settings.permissions);
