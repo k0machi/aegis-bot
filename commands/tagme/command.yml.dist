@@ -2,3 +2,4 @@ active: true
 hidden: false
 aliases: ['tgm']
 permissions: "SEND_MESSAGES"
+cooldown: 0

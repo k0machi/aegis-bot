@@ -2,3 +2,4 @@ active: true
 hidden: false
 aliases: ["printimg", "aisay"]
 permissions: "SEND_MESSAGES"
+cooldown: 60

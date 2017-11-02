@@ -2,3 +2,4 @@ active: true
 hidden: false
 aliases: ['rm']
 permissions: "MANAGE_MESSAGES"
+cooldown: 0

@@ -18,7 +18,7 @@
     }
     else {
         tagmode = await bot.getTagMode(guild);
-        perm = await bot.verifyPermission(user, guild, "MANAGE_ROLES");
+        perm = await bot.verifyPermission(message.member, "MANAGE_ROLES");
         console.log(`checking tagmode`);
         if (tagmode) {
             console.log(`checking permissions`);
@@ -26,28 +26,6 @@
         }
         console.log(`checking blacklist`);
         if (bot.checkUserBlacklist(member)) throw { message: 'Blacklisted user.' }
-
-        
-            
-        if (!perm) {
-            try {
-                var cd = bot.cooldowns[member.guild.id][member.user.id]['tagme'];
-                if (parseInt(message.createdTimestamp) < parseInt(cd) + 900 * 1000) {
-                    message.channel.send("You're creating new tags too fast. Try again later.");
-                    return;
-                } else {
-                    cd = message.createdTimestamp;
-                }
-            } catch (e) {
-                var cd = bot.cooldowns[member.guild.id];
-                if (!cd) {
-                    bot.cooldowns[member.guild.id] = {};
-                    cd = bot.cooldowns[member.guild.id];
-                }
-                if (!cd[member.user.id]) cd[member.user.id] = {};
-                if (!cd[member.user.id]['tagme']) cd[member.user.id]['tagme'] = message.createdTimestamp;
-            }
-        };
         
         tag = await bot.createTag(gname, guild, user, Date.now());
         rv = await member.addRole(tag, 'User tag');

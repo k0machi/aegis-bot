@@ -2,3 +2,4 @@ active: true
 hidden: false
 aliases: ['tm']
 permissions: "MANAGE_ROLES"
+cooldown: 0

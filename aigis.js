@@ -66,8 +66,7 @@ module.exports = {
         return mode.mode;
     },
 
-    verifyPermission: async function (user, guild, perm) {
-        member = await guild.fetchMember(user.id);
+    verifyPermission: function (member, perm) {
         perms = member.hasPermission(perm, false, true);
         if (perms) {
             return true;
@@ -84,11 +83,40 @@ module.exports = {
             return;
         try {
             if (this.debug) console.log(`"${cmd.settings.permissions}"`);
-            perm = await this.verifyPermission(message.author, message.guild, cmd.settings.permissions);
+            if (['dm', 'group'].includes(message.channel.type)) {
+                this.commands['aigis'].exec(this, message, args);
+                return
+            }
+            perm = await this.verifyPermission(message.member, cmd.settings.permissions);
             if (!perm) throw { message: `Missing permissions: ${cmd.settings.permissions}` };
+            var cd = this.checkCooldown(message, command);
+            console.log(this.cooldowns);
+            if (!cd) throw { message: `Please wait before executing \`${this.pfx}${cmdName}\` again` };
             await cmd.exec(this, message, args);
         } catch (e) {
             message.channel.send(e.message);
+        }
+    },
+    checkCooldown: function (message, command) {
+        cmd = this.commands[command] || this.commands[this.aliases[command]];
+        cmdName = cmd.meta.action;
+        try {
+            var cd = this.cooldowns[message.member.guild.id][message.member.user.id][cmdName];
+            if (parseInt(message.createdTimestamp) < parseInt(cd) + cmd.settings.cooldown * 1000) {
+                return false;
+            } else {
+                cd = message.createdTimestamp;
+                return true;
+            }
+        } catch (e) {
+            var cd = this.cooldowns[message.member.guild.id];
+            if (!cd) {
+                this.cooldowns[message.member.guild.id] = {};
+                cd = this.cooldowns[message.member.guild.id];
+            }
+            if (!cd[message.member.user.id]) cd[message.member.user.id] = {};
+            if (!cd[message.member.user.id][cmdName]) cd[message.member.user.id][cmdName] = message.createdTimestamp;
+            return true;
         }
     },
 

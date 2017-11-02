@@ -2,3 +2,4 @@ active: true
 hidden: true
 aliases: ["pt", "cond"]
 permissions: "ADMINISTRATOR"
+cooldown: 0
