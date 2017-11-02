@@ -6,6 +6,7 @@
         //SOPA DE JAVASCRIPTA
         //UMA DELICIA
         Object.keys(bot.commands).forEach(value => {
+            if (bot.commands[value].settings.hidden) return;
             let help = bot.commands[value].help(bot.pfx);
             helpList.push({
                 name: help.pretty,
