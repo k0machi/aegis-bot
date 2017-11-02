@@ -1,5 +1,5 @@
 ﻿module.exports.exec = async (bot, message, args) => {
-    const msg = await message.channel.send("Meow!");
+    const msg = await message.channel.send(`${message.author} Meow!`);
 }
 
 module.exports.meta = {

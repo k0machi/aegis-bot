@@ -22,7 +22,7 @@
             var writtenPath = `./temp/${fileName}.png`;
             var channel = message.channel; 
             processedImage.write(writtenPath, function () {
-                channel.send('Here you go', {
+                channel.send(`Here you go ${message.author}`, {
                     files: [
                         writtenPath
                     ]
