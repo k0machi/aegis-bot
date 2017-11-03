@@ -34,13 +34,15 @@
     var fileName = Math.floor(Date.now());
     if (bot.debug) console.log("Saving...");
     let path = `./temp/${fileName}.png`;
-    image.savePng(path, 1, function (err) { if (err) throw err });
-    image.destroy();
-    message.channel.send(`Here you go ${message.author}`, {
-        files: [
-            path
-        ]
+    image.savePng(path, 1, function (err) { 
+        if (err) throw err;
+        message.channel.send(`Here you go ${message.author}`, {
+            files: [
+                path
+            ]
+        });
     });
+    image.destroy();
 
 }
 
