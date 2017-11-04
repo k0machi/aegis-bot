@@ -115,6 +115,13 @@ class Aigis
             }
         }.bind(this));
 
+        process.on("SIGINT", async () => {
+            this.log.info("Received ^C, terminating...");
+            await this.client.destroy();
+            this.server.close();
+            process.exit(0);
+        });
+        
         this.server.listen(8888);
         this.client.login(this.config.app_token);
         this.setPresence();
