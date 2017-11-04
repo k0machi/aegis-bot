@@ -1,11 +1,7 @@
-﻿const Phabricator = require("./commands/phabricator/phabricator.js");
-const Discord = require("discord.js");
+﻿const Discord = require("discord.js");
 const { promisify } = require("util");
 const directoryReader = promisify(require("fs").readdir);
-const sqlite = require("sqlite");
 const http = require("http");
-const fs = require("fs");
-const yaml = require("js-yaml");
 const qs = require("querystring");
 const canduit = require("canduit");
 
@@ -16,14 +12,11 @@ class Aigis
             this.debug = true;
             console.log("Debug mode");
         }
-        //this.client = client;
-        //this.config = config;
-        //this.sql = sql;
-        //this.yaml = yaml;
-        //this.fs = fs;
-        //this.phabricator = Phabricator;
-        //this.canduit = canduit;
-        //
+        this.client = new Discord.Client();
+        this.fs = require("fs");
+        this.sql = require("sqlite");
+        this.yaml = require("js-yaml");
+        this.phabricator = require("./commands/phabricator/phabricator.js");
         this.cooldowns = {};
         this.commands = {};
         this.aliases = {};
@@ -33,21 +26,18 @@ class Aigis
         this.server = http.createServer((req, res) => {
             res.end();
         });
-        this.client = new Discord.Client();
-        sqlite.open("./database/main.db");
-        this.sql = sqlite;
-        this.config = yaml.safeLoad(fs.readFileSync("./config.yml", "utf8"));
+        this.sql.open("./database/main.db");
+        this.config = this.yaml.safeLoad(this.fs.readFileSync("./config.yml", "utf8"));
         this.pfx = this.config.command_prefix;
         this.canduit = canduit({ api: this.config.phab_host, user: "Aegis", token: this.config.phab_api_token }, () => { console.log("Conduit Init"); });
-        Phabricator.init(this.canduit, this);
-        this.phabricator = Phabricator;
+        this.phabricator.init(this.canduit, this);
         const commands = await directoryReader("./commands/");
     
         commands.forEach(function(file) {
             try {
                 var command = require(`./commands/${file}/index.js`);
                 console.log(`Loading command ${command.help(this.config.command_prefix).pretty}`);
-                var settings = yaml.safeLoad(fs.readFileSync(`./commands/${file}/command.yml`, "utf8"));
+                var settings = this.yaml.safeLoad(this.fs.readFileSync(`./commands/${file}/command.yml`, "utf8"));
                 if (settings.active === false) {
                     console.log(command.help(this.config.command_prefix).pretty + " is disabled, skipping...");
                     return;
@@ -104,7 +94,7 @@ class Aigis
     }
 
     postPhabStory(post) {
-        var message = Object.create(Phabricator.message_factory);
+        var message = Object.create(this.phabricator.message_factory);
         message.init(post, this);
     }
 
@@ -272,8 +262,5 @@ class Aigis
         return this.yaml.safeLoad(this.fs.readFileSync(path, "utf8"));
     }
 }
-
-
-
 
 module.exports = Aigis;
