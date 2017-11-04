@@ -89,8 +89,8 @@ module.exports = {
             }
             let perm = await this.verifyPermission(message.member, cmd.settings.permissions);
             if (!perm) throw { message: `Missing permissions: ${cmd.settings.permissions}` };
-            var cd = this.checkCooldown(message, command);
-            console.log(this.cooldowns);
+            let cd = this.checkCooldown(message, command);
+            if (this.debug) console.log(this.cooldowns);
             if (!cd) throw { message: `Please wait before executing \`${this.pfx}${cmd.meta.action}\` again` };
             await cmd.exec(this, message, args);
         } catch (e) {
