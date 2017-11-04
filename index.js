@@ -48,7 +48,11 @@ const launch = async () => {
     });
 
     client.on("guildMemberAdd", member => {
-        Aigis.sayHello(member, member.guild.id);
+        try {
+            Aigis.sayHello(member);
+        } catch (e) {
+            console.log(e.message);
+        }
     });
 
     server.on("request", (req, res) => { //eslint-disable-line no-unused-vars

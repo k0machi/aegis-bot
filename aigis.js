@@ -34,13 +34,11 @@ module.exports = {
         this.phabricator.init(canduit, this);
     },
 
-    sayHello: async function (member, gid) {
-        let wmsg = await this.sql.get("SELECT * FROM WelcomeMessages WHERE guildId == ?", [gid]);
+    sayHello: async function (member) {
+        let wmsg = await this.sql.get("SELECT * FROM WelcomeMessages WHERE guildId == ?", [member.guild.id]);
         if (!wmsg) return;
-        let guild = this.client.guilds.find("id", wmsg.GuildId);
-        if (!guild) throw { message: "WMSG: Guild not found" };
-        let channel = guild.channels.find("id", wmsg.ChannelId);
-        if (!channel) throw { message: "WMSG: Unknown channel" };
+        let channel = member.guild.channels.get(wmsg.ChannelId);
+        if (!channel) throw { message: "SayHello(): Channel not found" };
         channel.send(member + ", " + wmsg.Message);
     },
 
