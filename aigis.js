@@ -39,6 +39,7 @@ class Aigis
         this.pfx = this.config.command_prefix;
         this.canduit = canduit({ api: this.config.phab_host, user: "Aegis", token: this.config.phab_api_token }, () => { console.log("Conduit Init"); });
         Phabricator.init(this.canduit, this);
+        this.phabricator = Phabricator;
         const commands = await directoryReader("./commands/");
     
         commands.forEach(function(file) {
