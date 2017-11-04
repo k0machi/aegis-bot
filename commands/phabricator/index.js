@@ -1,13 +1,11 @@
 ﻿module.exports.exec = async (bot, message, args) => { //eslint-disable-line no-unused-vars
-    bot.postPhabStory({
-        storyID: "1898",
+    bot.postPhabStory({ storyID: "1975",
         storyType: "PhabricatorApplicationTransactionFeedStory",
-        "storyData[objectPHID]": "PHID-TASK-giwbfh4l4vrqpamgztvz",
-        "storyData[transactionPHIDs][PHID-XACT-TASK-sb6hxxhvn64ng5r]": "PHID-XACT-TASK-sb6hxxhvn64ng5r",
+        "storyData[objectPHID]": "PHID-CMIT-5jcf3ixxwguusbtys3dw",
+        "storyData[transactionPHIDs][PHID-XACT-CMIT-xews4xkxmmjyppc]": "PHID-XACT-CMIT-xews4xkxmmjyppc",
         storyAuthorPHID: "PHID-USER-bpim6n7x7d2ujylo2wjw",
-        storyText: "komachi added a comment to T119: Discord Feed Hook.",
-        epoch: "1509303331"
-    });
+        storyText: "komachi committed rAEGISb32b4f667b0a: Fixed references in phabricator-feed (authored by komachi).",
+        epoch: "1509818916" });
     //bot.conduit_endpoint.exec('conduit.ping', {}, async (err, result) => {
     //    console.log(result);
     //    rv = await message.channel.send(JSON.stringify(result));
