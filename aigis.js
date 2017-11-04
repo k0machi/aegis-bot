@@ -35,6 +35,7 @@ class Aigis
         });
         this.client = new Discord.Client();
         sqlite.open("./database/main.db");
+        this.sql = sqlite;
         this.config = yaml.safeLoad(fs.readFileSync("./config.yml", "utf8"));
         this.pfx = this.config.command_prefix;
         this.canduit = canduit({ api: this.config.phab_host, user: "Aegis", token: this.config.phab_api_token }, () => { console.log("Conduit Init"); });
