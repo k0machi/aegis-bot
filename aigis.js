@@ -101,12 +101,12 @@ module.exports = {
         var cmd = this.commands[command] || this.commands[this.aliases[command]];
         var cmdName = cmd.meta.action;
         try {
-            let cd = this.cooldowns[message.member.guild.id][message.member.user.id][cmdName];
-            let secondsRemaining = (parseInt(cd) + cmd.settings.cooldown * 1000) - parseInt(message.createdTimestamp);
+            let cd = this.cooldowns[message.member.guild.id][message.member.user.id];
+            let secondsRemaining = (parseInt(cd[cmdName]) + cmd.settings.cooldown * 1000) - parseInt(message.createdTimestamp);
             if (secondsRemaining > 0) {
                 return secondsRemaining;
             } else {
-                cd = message.createdTimestamp;
+                cd[cmdName] = message.createdTimestamp;
                 return false;
             }
         } catch (e) {
