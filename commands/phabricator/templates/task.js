@@ -33,8 +33,8 @@
             }
         ]
     };
-    bot.phabricator.endpoint.exec('maniphest.search', { constraints: { phids: [task.phid] } }, this.callback.bind(this));
-    bot.phabricator.endpoint.exec('maniphest.gettasktransactions', { ids: [parseInt(this.taskid)] }, this.callbackComments.bind(this));
+    bot.phabricator.endpoint.exec("maniphest.search", { constraints: { phids: [task.phid] } }, this.callback.bind(this));
+    bot.phabricator.endpoint.exec("maniphest.gettasktransactions", { ids: [parseInt(this.taskid)] }, this.callbackComments.bind(this));
     this.template.title = task.name;
     this.template.url = task.uri;
     this.template.author.name = task.typeName;

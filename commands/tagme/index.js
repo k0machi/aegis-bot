@@ -1,42 +1,42 @@
 ﻿module.exports.exec = async (bot, message, args) => {
-    message.channel.send('Tag requested: ' + args.join(' '));
-    var gname = args.join(' ');
+    message.channel.send("Tag requested: " + args.join(" "));
+    var gname = args.join(" ");
     var user = message.author;
     var guild = message.guild;
     var channel = message.channel;
 
-    if (gname.length > 16) throw { message: 'Tag name is too long.' }
-    if (gname.includes('@')) throw { message: 'Tag contains illegal symbols.'}
-    if (gname.length < 1) throw { message: 'Name is too short.' }
-    member = await message.guild.members.find('id', user.id);
+    if (gname.length > 16) throw { message: "Tag name is too long." };
+    if (gname.includes("@")) throw { message: "Tag contains illegal symbols."};
+    if (gname.length < 1) throw { message: "Name is too short." };
+    member = await message.guild.members.find("id", user.id);
     role = await bot.checkTag(gname, guild);
-    if (bot.debug) console.log(`checking role presence`);
+    if (bot.debug) console.log("checking role presence");
     if (role) {
-        rv = await member.addRole(role.role, 'User tag added');
-        channel.send('I\'ve tagged you with "' + role.role.name + '"');
+        rv = await member.addRole(role.role, "User tag added");
+        channel.send("I've tagged you with \"" + role.role.name + "\"");
         return true;
     }
     else {
         tagmode = await bot.getTagMode(guild);
         perm = await bot.verifyPermission(message.member, "MANAGE_ROLES");
-        if (bot.debug) console.log(`checking tagmode`);
+        if (bot.debug) console.log("checking tagmode");
         if (tagmode) {
-            if (bot.debug) console.log(`checking permissions`);
-            if (!perm) throw { message: "Missing permissions for creating a tag." }
+            if (bot.debug) console.log("checking permissions");
+            if (!perm) throw { message: "Missing permissions for creating a tag." };
         }
-        if (bot.debug) console.log(`checking blacklist`);
-        if (bot.checkUserBlacklist(member)) throw { message: 'Blacklisted user.' }
+        if (bot.debug) console.log("checking blacklist");
+        if (bot.checkUserBlacklist(member)) throw { message: "Blacklisted user." };
         
         tag = await bot.createTag(gname, guild, user, Date.now());
-        rv = await member.addRole(tag, 'User tag');
-        channel.send('I\'ve tagged you with "' + tag.name + '"');
+        rv = await member.addRole(tag, "User tag");
+        channel.send("I've tagged you with \"" + tag.name + "\"");
         return true;
     }
-}
+};
 
 module.exports.meta = {
     action: "tagme"
-}
+};
 
 module.exports.help = function (pfx) {
     var data = {
@@ -46,4 +46,4 @@ module.exports.help = function (pfx) {
     };
 
     return data;
-}
+};

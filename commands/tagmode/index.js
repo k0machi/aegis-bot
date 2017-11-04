@@ -1,22 +1,22 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     var guild = message.guild;
-    mode = await bot.sql.get('SELECT * FROM TagModeData WHERE guildId == ?', [guild.id]);
+    mode = await bot.sql.get("SELECT * FROM TagModeData WHERE guildId == ?", [guild.id]);
     if (mode) {
-        md = await bot.sql.run('UPDATE TagModeData SET [mode] = ? WHERE guildid == ?', [!mode.mode, mode.guildId]);
+        md = await bot.sql.run("UPDATE TagModeData SET [mode] = ? WHERE guildid == ?", [!mode.mode, mode.guildId]);
         if (mode.mode) {
-            message.channel.send('Switched tagging mode to public - everyone can create tags!');
+            message.channel.send("Switched tagging mode to public - everyone can create tags!");
         } else {
-            message.channel.send('Switched tagging mode to protected - only people with "Manage Roles" can create new tags');
+            message.channel.send("Switched tagging mode to protected - only people with \"Manage Roles\" can create new tags");
         }
     } else {
-        md = await bot.sql.run('INSERT INTO TagModeData ([guildId], [mode]) VALUES (?, ?)', [guild.id, 1]);
-        message.channel.send('Switched tagging mode to protected - only people with "Manage Roles" can create new tags');
+        md = await bot.sql.run("INSERT INTO TagModeData ([guildId], [mode]) VALUES (?, ?)", [guild.id, 1]);
+        message.channel.send("Switched tagging mode to protected - only people with \"Manage Roles\" can create new tags");
     }
-}
+};
 
 module.exports.meta = {
     action: "tagmode"
-}
+};
 
 module.exports.help = function (pfx) {
     var data = {
@@ -26,4 +26,4 @@ module.exports.help = function (pfx) {
     };
 
     return data;
-}
+};

@@ -6,15 +6,15 @@
     var user = message.author;
     var member = await guild.fetchMember(user);
 
-    channel.send('Okay.').then(() => {
+    channel.send("Okay.").then(() => {
         channel.bulkDelete(amount + 2);
-        bot.logToDB(member.id, message.createdTimestamp, 'DELETE_MESSAGE', [amount, member.user.username + ' deleted ' + amount + ' messages from channel ' + message.channel.name], message.guild);
+        bot.logToDB(member.id, message.createdTimestamp, "DELETE_MESSAGE", [amount, member.user.username + " deleted " + amount + " messages from channel " + message.channel.name], message.guild);
     });
-}
+};
 
 module.exports.meta = {
     action: "deletemsg"
-}
+};
 
 module.exports.help = function (pfx) {
     var data = {
@@ -24,4 +24,4 @@ module.exports.help = function (pfx) {
     };
 
     return data;
-}
+};

@@ -13,7 +13,7 @@ module.exports = {
         let template_f = await dirRead(__dirname + "/templates");
         template_f.forEach(function(template) {
             try {
-                if (template.split(".").slice(-1)[0] !== 'js') throw { e: "Not a js file " };
+                if (template.split(".").slice(-1)[0] !== "js") throw { e: "Not a js file " };
                 let temp = require(__dirname + "/templates/" + template);
                 if (!temp.prototype.key) throw { e: "Missing template key" };
                 console.log(`Loading template: ${temp.prototype.key}`);
@@ -48,8 +48,8 @@ module.exports = {
         init: function (post, bot) {
             this.story = post;
             this.bot = bot;
-            bot.phabricator.endpoint.exec('user.search', { constraints: { phids: [post.storyAuthorPHID] }, attachments: { avatar: true } }, this.cbAuthor.bind(this));
-            bot.phabricator.endpoint.exec('phid.query', { phids: [post["storyData[objectPHID]"]] }, this.cbObject.bind(this));
+            bot.phabricator.endpoint.exec("user.search", { constraints: { phids: [post.storyAuthorPHID] }, attachments: { avatar: true } }, this.cbAuthor.bind(this));
+            bot.phabricator.endpoint.exec("phid.query", { phids: [post["storyData[objectPHID]"]] }, this.cbObject.bind(this));
         },
 
         cbAuthor: function (err, author) {
@@ -79,10 +79,10 @@ module.exports = {
                 );
             var ph = this.bot.phabricator;
             var ph_obj = this.object[Object.keys(this.object)[0]];
-            guild = this.bot.client.guilds.find('id', this.bot.config.phab_story_guild_id);
-            if (!guild) throw { message: 'Not a member of dev guild' };
-            channel = guild.channels.find('id', this.bot.config.phab_story_channel_id);
-            if (!channel) throw { message: 'Unknown channel' };
+            guild = this.bot.client.guilds.find("id", this.bot.config.phab_story_guild_id);
+            if (!guild) throw { message: "Not a member of dev guild" };
+            channel = guild.channels.find("id", this.bot.config.phab_story_channel_id);
+            if (!channel) throw { message: "Unknown channel" };
             try {
                 //TODO:
                 //Separate exception handling with undefined template handling

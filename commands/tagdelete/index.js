@@ -1,10 +1,10 @@
 ﻿module.exports.exec = async (bot, message, args) => {
-    bot.deleteTag(args.join(' '), message.guild, message.channel, message.author);
-}
+    bot.deleteTag(args.join(" "), message.guild, message.channel, message.author);
+};
 
 module.exports.meta = {
     action: "tagdelete"
-}
+};
 
 module.exports.help = function (pfx) {
     var data = {
@@ -14,4 +14,4 @@ module.exports.help = function (pfx) {
     };
 
     return data;
-}
+};

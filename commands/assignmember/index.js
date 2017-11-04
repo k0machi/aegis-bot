@@ -1,15 +1,15 @@
 ﻿module.exports.exec = async (bot, message, args) => {
-    const localConfig = bot.parseYAML(__dirname + '/command.yml');
+    const localConfig = bot.parseYAML(__dirname + "/command.yml");
     console.log(localConfig);
     var sql = bot.sql;
-    var tableName = 'VerificationTokens';
+    var tableName = "VerificationTokens";
     var steamKey = bot.config.steam_api_token;
-    const axios = require('axios');
+    const axios = require("axios");
     var steamUrl = args[0];
     //Exit if user has any amount of roles
-    if (message.member.roles.array().length > 1) throw { message: 'You don\'t need that' }
+    if (message.member.roles.array().length > 1) throw { message: "You don't need that" };
 
-    if (!steamUrl) throw { message: 'This does not look like a valid Steam URL' };
+    if (!steamUrl) throw { message: "This does not look like a valid Steam URL" };
 
     console.log(steamUrl);
     var steamid = await extractSteamID(steamUrl);
@@ -24,12 +24,12 @@
 
     var discordId = message.author.id;
     var guildId = message.guild.id;
-    let tokenData = await bot.sql.get('SELECT * FROM ' + tableName + ' WHERE (discordid = ? AND guildid = ?)', [discordId, guildId]);
+    let tokenData = await bot.sql.get("SELECT * FROM " + tableName + " WHERE (discordid = ? AND guildid = ?)", [discordId, guildId]);
     console.log(tokenData);
     if (!tokenData) {// tokenData does not exist yet, create new one
-        const uuidv4 = require('uuid/v4');
+        const uuidv4 = require("uuid/v4");
         let token = uuidv4();
-        ins = await bot.sql.run('INSERT INTO ' + tableName + '([discordid], [guildid], [token], [createdat]) VALUES (?, ?, ?, ?)', [discordId, guildId, token, Date.now()]);
+        ins = await bot.sql.run("INSERT INTO " + tableName + "([discordid], [guildid], [token], [createdat]) VALUES (?, ?, ?, ?)", [discordId, guildId, token, Date.now()]);
         const msg = await message.channel.send(`Here is your token: \`\`\`${token}\`\`\`\n\nGo to \"Edit Profile\", paste that into your profile's \"Real Name\" field and run \`$$verify ${steamUrl.replace("`", "")}\` again.`);
     } else { //token data does exist, check user's profile
         var playerData = await getUserData(steamid);
@@ -39,7 +39,7 @@
             const msg = await message.channel.send("Token verified. You are now a member of following groups: " + groupsToAssign.join());
             for (let i = 0; i < groupsToAssign.length; i++)
             {
-                let role = await message.guild.roles.find('name', groupsToAssign[i]);
+                let role = await message.guild.roles.find("name", groupsToAssign[i]);
                 let rv = await message.member.addRole(role, `A new ${role.name} joins! ${message.author.username}`);
             }
             del = bot.sql.run(`DELETE FROM ${tableName} WHERE [token] = ?`, [tokenData.token]);
@@ -51,7 +51,7 @@
     async function extractSteamID(url) {
         let matches = url.match(/^https?:\/\/steamcommunity\.com\/id\/(.*)$/);
         if (matches && matches[1]) {
-            var vanityUrl = matches[1].split('/')[0];
+            var vanityUrl = matches[1].split("/")[0];
             var resolveMethod = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${steamKey}&vanityurl=${vanityUrl}&url_type=1`;
             const response = await axios(resolveMethod);
 
@@ -73,17 +73,17 @@
         const response = await axios(resolveMethod);
         var players = response.data.response.players;
         if (players.length == 0)
-            throw { message: "Unable to read stats for steamid " + steamid }
+            throw { message: "Unable to read stats for steamid " + steamid };
         return players[0];
     }
 
     async function checkIfTableExists(sql) {
         try {
-            let get = await sql.get('SELECT * FROM ' + tableName + ' WHERE discordid = 0');
+            let get = await sql.get("SELECT * FROM " + tableName + " WHERE discordid = 0");
 
         } catch (error) {
             console.log(error);
-            await sql.run('CREATE TABLE IF NOT EXISTS ' + tableName + '(discordid TEXT, guildid TEXT, token TEXT, createdat INTEGER)')
+            await sql.run("CREATE TABLE IF NOT EXISTS " + tableName + "(discordid TEXT, guildid TEXT, token TEXT, createdat INTEGER)");
         }
     }
 
@@ -101,11 +101,11 @@
         }
         return listOfGroups;
     }
-}
+};
 
 module.exports.meta = {
     action: "verify"
-}
+};
 
 module.exports.help = function (pfx) {
     var data = {
@@ -115,4 +115,4 @@ module.exports.help = function (pfx) {
     };
 
     return data;
-}
+};

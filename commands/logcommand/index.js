@@ -1,11 +1,11 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     var guild = message.guild;
-    bot.logToDB(message.author.id, message.createdTimestamp, 'Test #2', args.join(','), guild);        
-}
+    bot.logToDB(message.author.id, message.createdTimestamp, "Test #2", args.join(","), guild);        
+};
 
 module.exports.meta = {
     action: "logcommand"
-}
+};
 
 module.exports.help = function (pfx) {
     var data = {
@@ -15,4 +15,4 @@ module.exports.help = function (pfx) {
     };
 
     return data;
-}
+};

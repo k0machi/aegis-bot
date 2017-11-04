@@ -1,7 +1,7 @@
 ﻿module.exports.exec = (bot, message, args) => {
-    var gd = require('node-gd');
-    var fileName = __dirname + '/resources/sign.png';
-    var textToPrint = args.join(' ');
+    var gd = require("node-gd");
+    var fileName = __dirname + "/resources/sign.png";
+    var textToPrint = args.join(" ");
     if (textToPrint.length > 500) throw { message: "Your message is too long!" };
 
     if (bot.debug) console.log(`Opening ${fileName}`);
@@ -14,7 +14,7 @@
     let lines = [words[0]];
     let curLine = 0;
     let width = 242;
-    let szFont = 14
+    let szFont = 14;
     for (let i = 1; i < words.length; i++)
     {
         let szLine = image.stringFTBBox(txtColor, font, szFont, 0, 0, 0, `${lines[curLine]} ${words[i]}`);
@@ -24,7 +24,7 @@
         }
         else
         {
-            curLine++
+            curLine++;
             lines[curLine] = words[i];
         }
     }
@@ -44,11 +44,11 @@
     });
     image.destroy();
 
-}
+};
 
 module.exports.meta = {
     action: "printimage"
-}
+};
 
 module.exports.help = function(pfx) {
     var data = {
@@ -58,4 +58,4 @@ module.exports.help = function(pfx) {
     };
 
     return data;
-}
+};

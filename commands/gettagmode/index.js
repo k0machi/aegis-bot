@@ -1,11 +1,11 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     mode = await bot.getTagMode(message.guild);
-    message.channel.send(`Current tag mode: ${mode ? 'Protected' : 'Public'}`);      
-}
+    message.channel.send(`Current tag mode: ${mode ? "Protected" : "Public"}`);      
+};
 
 module.exports.meta = {
     action: "gettagmode"
-}
+};
 
 module.exports.help = function (pfx) {
     var data = {
@@ -15,4 +15,4 @@ module.exports.help = function (pfx) {
     };
 
     return data;
-}
+};

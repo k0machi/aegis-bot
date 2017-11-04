@@ -6,19 +6,19 @@
     let channel = message.mentions.channels.first();
     if (!channel) throw { message: "No channel specified" };
 
-    wmsg = await bot.sql.get('SELECT * FROM WelcomeMessages WHERE guildId == ?', [message.guild.id]);
+    wmsg = await bot.sql.get("SELECT * FROM WelcomeMessages WHERE guildId == ?", [message.guild.id]);
     if (wmsg) {
-        wmsg = await bot.sql.run('UPDATE WelcomeMessages SET [Message] = ?, [ChannelId] = ? WHERE GuildId == ?', [text, channel.id, wmsg.GuildId]);
+        wmsg = await bot.sql.run("UPDATE WelcomeMessages SET [Message] = ?, [ChannelId] = ? WHERE GuildId == ?", [text, channel.id, wmsg.GuildId]);
     } else {
-        wmsg = await bot.sql.run('INSERT INTO WelcomeMessages ([Message], [GuildId], [ChannelId]) VALUES (?, ?, ?)', [text, message.guild.id, channel.id]);
+        wmsg = await bot.sql.run("INSERT INTO WelcomeMessages ([Message], [GuildId], [ChannelId]) VALUES (?, ?, ?)", [text, message.guild.id, channel.id]);
     }
 
     const msg = await message.channel.send(`Welcome message set for ${message.guild.name} channel: ${channel}`);
-}
+};
 
 module.exports.meta = {
     action: "welcome"
-}
+};
 
 module.exports.help = function (pfx) {
     
@@ -29,4 +29,4 @@ module.exports.help = function (pfx) {
     };
 
     return data;
-}
+};

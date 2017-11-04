@@ -1,12 +1,12 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     bot.postPhabStory({
-        storyID: '1898',
-        storyType: 'PhabricatorApplicationTransactionFeedStory',
-        'storyData[objectPHID]': 'PHID-TASK-giwbfh4l4vrqpamgztvz',
-        'storyData[transactionPHIDs][PHID-XACT-TASK-sb6hxxhvn64ng5r]': 'PHID-XACT-TASK-sb6hxxhvn64ng5r',
-        storyAuthorPHID: 'PHID-USER-bpim6n7x7d2ujylo2wjw',
-        storyText: 'komachi added a comment to T119: Discord Feed Hook.',
-        epoch: '1509303331'
+        storyID: "1898",
+        storyType: "PhabricatorApplicationTransactionFeedStory",
+        "storyData[objectPHID]": "PHID-TASK-giwbfh4l4vrqpamgztvz",
+        "storyData[transactionPHIDs][PHID-XACT-TASK-sb6hxxhvn64ng5r]": "PHID-XACT-TASK-sb6hxxhvn64ng5r",
+        storyAuthorPHID: "PHID-USER-bpim6n7x7d2ujylo2wjw",
+        storyText: "komachi added a comment to T119: Discord Feed Hook.",
+        epoch: "1509303331"
     });
     //bot.conduit_endpoint.exec('conduit.ping', {}, async (err, result) => {
     //    console.log(result);

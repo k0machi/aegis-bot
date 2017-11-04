@@ -1,20 +1,20 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     let help = this.help(bot.pfx);
     console.log(args);
-    if (args[0] === '-a') {
+    if (args[0] === "-a") {
         let helpList = [];
         //SOPA DE JAVASCRIPTA
         //UMA DELICIA
         Object.keys(bot.commands).forEach(value => {
             if (bot.commands[value].settings.hidden) return;
-            if (!message.channel.type in ['dm', 'group']) {
+            if (!(message.channel.type in ["dm", "group"])) {
                 if (!bot.verifyPermission(message.member, bot.commands[value].settings.permissions)) return;
-            };
+            }
             let help = bot.commands[value].help(bot.pfx);
             helpList.push({
                 name: help.pretty,
                 value: help.examples
-            })
+            });
         });
         message.author.send({
             embed: {
@@ -22,7 +22,7 @@
                     name: bot.client.user.username,
                     icon_url: bot.client.user.avatarURL
                 },
-                title: 'Aigis Bot',
+                title: "Aigis Bot",
                 fields: helpList
             }
         });
@@ -45,15 +45,15 @@
                         value: help.description
                     },
                     {
-                        name: 'Examples',
+                        name: "Examples",
                         value: help.examples
                     },
                     {
-                        name: 'Aliases',
-                        value: cmd.settings.aliases.toString() || 'None'
+                        name: "Aliases",
+                        value: cmd.settings.aliases.toString() || "None"
                     },
                     {
-                        name: 'Permissions',
+                        name: "Permissions",
                         value: cmd.settings.permissions
                     }
                     ]
@@ -61,7 +61,7 @@
             });
         } catch (e) {
             message.channel.send(e.message);
-        };
+        }
     } else {
         message.channel.send({
             embed: {
@@ -69,7 +69,7 @@
                     name: bot.client.user.username,
                     icon_url: bot.client.user.avatarURL
                 },
-                title: 'Aigis Bot',
+                title: "Aigis Bot",
                 fields: [{
                     name: help.pretty,
                     value: help.examples
@@ -77,11 +77,11 @@
             }
         });
     }
-}
+};
 
 module.exports.meta = {
     action: "aigis",
-}
+};
 
 module.exports.help = function (pfx) {
     var data = {
@@ -91,4 +91,4 @@ module.exports.help = function (pfx) {
     };
 
     return data;
-}
+};

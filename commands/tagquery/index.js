@@ -1,5 +1,5 @@
 ﻿module.exports.exec = async (bot, message, args) => {
-    var tagname = args.join(' ');
+    var tagname = args.join(" ");
     var guild = message.guild;
     var channel = message.channel;
 
@@ -14,28 +14,28 @@
                         name: `Tag: "${result.db.tagname}"`,
                         icon_url: user.avatarURL
                     },
-                    title: 'Information',
+                    title: "Information",
                     fields: [{
-                        name: 'Created by',
+                        name: "Created by",
                         value: user.username
                     },
                     {
-                        name: 'Created at',
+                        name: "Created at",
                         value: time.toUTCString()
                     }]
                 }
             });
         } else {
-            channel.send('This tag doesn\'t seem to exist!');
+            channel.send("This tag doesn't seem to exist!");
         }
     } catch (e) {
         channel.send(e.message);
     }
-}
+};
 
 module.exports.meta = {
     action: "tagquery"
-}
+};
 
 module.exports.help = function (pfx) {
     var data = {
@@ -45,4 +45,4 @@ module.exports.help = function (pfx) {
     };
 
     return data;
-}
+};

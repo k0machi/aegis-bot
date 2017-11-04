@@ -1,10 +1,10 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     bot.client.emit("guildMemberAdd", message.member);
-}
+};
 
 module.exports.meta = {
     action: "welcometest"
-}
+};
 
 module.exports.help = function(pfx) {
     var data = {
@@ -14,4 +14,4 @@ module.exports.help = function(pfx) {
     };
 
     return data;
-}
+};
