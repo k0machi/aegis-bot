@@ -4,8 +4,8 @@
         message.channel.send(`Global purge requested! Please type \`${bot.pfx}${this.meta.action} ${bot.config.purgeKey}\` to confirm this action!!`);
     } else if (message.mentions.members.array().length > 0) {
         message.mentions.members.forEach(async (mbr) => {
-            console.log(mbr.id);
-            console.log(mbr.guild.id);
+            bot.log.debug(mbr.id);
+            bot.log.debug(mbr.guild.id);
             let dbtags = await bot.sql.all("SELECT * FROM UserTags WHERE guildid == ? AND creatorid == ?", [mbr.guild.id, mbr.id]);
             let tags = [];
             dbtags.forEach((row, rowid) => { //eslint-disable-line no-unused-vars

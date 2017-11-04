@@ -4,12 +4,12 @@
     var textToPrint = args.join(" ");
     if (textToPrint.length > 500) throw { message: "Your message is too long!" };
 
-    if (bot.debug) console.log(`Opening ${picturePath}`);
+    bot.log.debug(`Opening ${picturePath}`);
     let image = gd.createFromPng(picturePath);
-    if (bot.debug) console.log("Open ", image);
+    bot.log.trace("Open ", image);
     let font = `${__dirname}/resources/Roboto-Regular.ttf`;
     let txtColor = image.colorAllocate(0, 0, 0);
-    if (bot.debug) console.log("CLR ALLOC ", txtColor);
+    bot.log.trace("CLR ALLOC ", txtColor);
     let words = textToPrint.split(" ");
     let lines = [words[0]];
     let curLine = 0;
@@ -32,7 +32,7 @@
     let yOffset = 84;
     image.stringFT(txtColor, font, szFont, 0, xOffset, yOffset, lines.join("\n"));
     var filename = Math.floor(Date.now());
-    if (bot.debug) console.log("Saving...");
+    bot.log.debug("Saving...");
     let path = `./temp/${filename}.png`;
     image.savePng(path, 1, function (err) { 
         if (err) throw err;

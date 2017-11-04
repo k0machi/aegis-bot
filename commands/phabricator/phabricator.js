@@ -15,18 +15,18 @@ module.exports = {
             try {
                 if (template.split(".").slice(-1)[0] !== "js") throw { e: "Not a js file " };
                 let temp = require(__dirname + "/templates/" + template);
-                if (!temp.prototype.key) throw { e: "Missing template key" };
-                console.log(`Loading template: ${temp.prototype.key}`);
+                if (!temp.prototype.key) throw { message: "Missing template key" };
+                bot.log.info(`Loading template: ${temp.prototype.key}`);
                 that.templates[temp.prototype.key] = temp;
             } catch (e) {
-                console.log(e);
+                bot.log.warn(e.message);
             }
         });
     },
 
     check_space: function (space_phid) {
         if (this.bot.config.phab_hidden_spaces.includes(space_phid)) {
-            if (this.bot.debug) console.log("check_space");
+            this.bot.log.debug("check_space");
             return false;
         } else {
             return true;
@@ -67,16 +67,15 @@ module.exports = {
         },
 
         send: function () {
-            if (this.bot.debug)
-                console.log(
-                    "-------------------BEGIN FEED STORY DUMP-------------------\n",
-                    this.story,
-                    "\n",
-                    this.author,
-                    "\n",
-                    this.object,
-                    "\n-------------------END FEED STORY DUMP-------------------\n"
-                );
+            this.bot.log.trace(
+                "-------------------BEGIN FEED STORY DUMP-------------------\n",
+                this.story,
+                "\n",
+                this.author,
+                "\n",
+                this.object,
+                "\n-------------------END FEED STORY DUMP-------------------\n"
+            );
             let ph = this.bot.phabricator;
             let ph_obj = this.object[Object.keys(this.object)[0]];
             let guild = this.bot.client.guilds.find("id", this.bot.config.phab_story_guild_id);

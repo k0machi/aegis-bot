@@ -4,6 +4,8 @@ const directoryReader = promisify(require("fs").readdir);
 const http = require("http");
 const qs = require("querystring");
 const canduit = require("canduit");
+const bunyan = require("bunyan");
+const prettyStream = require("bunyan-prettystream");
 /**
  * Aigis bot
  */
@@ -13,11 +15,8 @@ class Aigis
      * @constructor
      */
     constructor() {
-        if (process.argv.includes("--aidebug")) {
-            this.debug = true;
-            console.log("Debug mode");
-        }
         this.client = new Discord.Client();
+        this.prettyStream = new prettyStream();
         this.fs = require("fs");
         this.sql = require("sqlite");
         this.yaml = require("js-yaml");
@@ -31,23 +30,51 @@ class Aigis
      * Main bot initialization and login
      */
     async run() {
+
+        this.prettyStream.pipe(process.stdout);
+        
+        if (process.argv.includes("--aidebug")) {
+            let index = process.argv.indexOf("--aidebug");
+            this.loglevel = parseInt(process.argv[index + 1]) || 30;
+        }
+        
+        this.log = bunyan.createLogger({
+            name: "aigis",
+            level: this.loglevel || 30,
+            streams: [
+                {
+                    level: this.loglevel || 30,
+                    type: "raw",
+                    stream: this.prettyStream
+                },
+                {
+                    level: this.loglevel || 30,
+                    path: __dirname + "/log/aigis.log"
+                },
+                {
+                    level: 40,
+                    path: __dirname + "/log/aigis-error.log"
+                }              
+            ]
+        });
+        this.log.info("Log Level: " + this.loglevel);
         this.server = http.createServer((req, res) => {
             res.end();
         });
         this.sql.open("./database/main.db");
         this.config = this.yaml.safeLoad(this.fs.readFileSync("./config.yml", "utf8"));
         this.pfx = this.config.command_prefix;
-        this.canduit = canduit({ api: this.config.phab_host, user: "Aegis", token: this.config.phab_api_token }, () => { console.log("Conduit Init"); });
+        this.canduit = canduit({ api: this.config.phab_host, user: "Aegis", token: this.config.phab_api_token }, () => { this.log.info("Conduit Init"); });
         this.phabricator.init(this.canduit, this);
         const commands = await directoryReader("./commands/");
     
         commands.forEach(function(file) {
             try {
                 var command = require(`./commands/${file}/index.js`);
-                console.log(`Loading command ${command.help(this.config.command_prefix).pretty}`);
+                this.log.info(`Loading command ${command.help(this.config.command_prefix).pretty}`);
                 var settings = this.yaml.safeLoad(this.fs.readFileSync(`./commands/${file}/command.yml`, "utf8"));
                 if (settings.active === false) {
-                    console.log(command.help(this.config.command_prefix).pretty + " is disabled, skipping...");
+                    this.log.info(command.help(this.config.command_prefix).pretty + " is disabled, skipping...");
                     return;
                 }
                 command.settings = settings;
@@ -57,7 +84,7 @@ class Aigis
                     this.registerAlias(alias, command.meta.action);
                 });
             } catch (e) {
-                console.log(`Unable to parse files: ${file}: ${e}`);
+                this.log.warn(`Unable to parse files: ${file}: ${e}`);
             }
         }.bind(this));
     
@@ -67,13 +94,13 @@ class Aigis
             try {
                 this.sayHello(member);
             } catch (e) {
-                console.log(e.message);
+                this.log.error(e.message);
             }
         }.bind(this));
     
         this.server.on("request", function(req, res) { //eslint-disable-line no-unused-vars
             if (req.url.includes("phab-story")) {
-                if (this.debug) console.log("Endpoint phab-story called");
+                this.log.info("Endpoint phab-story called");
                 var body = "";
                 req.on("data", function (data) {
                     body += data;
@@ -119,9 +146,9 @@ class Aigis
      */
     setPresence() {
         this.client.on("ready", async () => {
-            console.log("Initialization finished.");
+            this.log.info("Initialization finished.");
             this.client.user.setPresence({ game: { name: `say ${this.pfx}aigis`, type: 0 } });
-            if (this.debug) console.log(this.aliases);
+            this.log.trace(this.aliases);
         });
     }
 
@@ -179,7 +206,7 @@ class Aigis
         if (!cmd)
             return;
         try {
-            if (this.debug) console.log(`"${cmd.settings.permissions}"`);
+            this.log.trace(`"${cmd.settings.permissions}"`);
             if (["dm", "group"].includes(message.channel.type)) {
                 this.commands["aigis"].exec(this, message, [args[0] === "-a" ? "-a": command]);
                 return;
@@ -187,11 +214,11 @@ class Aigis
             let perm = await this.verifyPermission(message.member, cmd.settings.permissions);
             if (!perm) throw { message: `Missing permissions: ${cmd.settings.permissions}` };
             let cd = this.checkCooldown(message, command);
-            if (this.debug) console.log(this.cooldowns);
+            this.log.trace(this.cooldowns);
             if (cd) throw {
                 message: `Please wait ${parseInt(cd /1000)} seconds before executing \`${this.pfx}${cmd.meta.action}\` again` 
             };
-            if (this.debug) console.log(`${command} exec`);
+            this.log.debug(`${command} exec`);
             await cmd.exec(this, message, args);
         } catch (e) {
             message.channel.send(e.message);

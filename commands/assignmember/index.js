@@ -1,6 +1,6 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     const localConfig = bot.parseYAML(__dirname + "/command.yml");
-    console.log(localConfig);
+    bot.log.trace(localConfig);
     var tableName = "VerificationTokens";
     var steamKey = bot.config.steam_api_token;
     const axios = require("axios");
@@ -10,10 +10,10 @@
 
     if (!steamUrl) throw { message: "This does not look like a valid Steam URL" };
 
-    console.log(steamUrl);
+    bot.log.trace(steamUrl);
     var steamid = await extractSteamID(steamUrl);
     if (!steamid) throw { message: "Unable to find profile for " + steamUrl };
-    console.log(steamid);
+    bot.log.trace(steamid);
 
     var groupsToAssign = await checkGroupMembership(localConfig.groups, steamid);
     if (groupsToAssign.length == 0)
@@ -23,7 +23,7 @@
     var discordId = message.author.id;
     var guildId = message.guild.id;
     let tokenData = await bot.sql.get("SELECT * FROM " + tableName + " WHERE (discordid = ? AND guildid = ?)", [discordId, guildId]);
-    console.log(tokenData);
+    bot.log.trace(tokenData);
     if (!tokenData) {// tokenData does not exist yet, create new one
         const uuidv4 = require("uuid/v4");
         let token = uuidv4();
@@ -31,8 +31,8 @@
         await message.channel.send(`Here is your token: \`\`\`${token}\`\`\`\n\nGo to "Edit Profile", paste that into your profile's "Real Name" field and run \`$$verify ${steamUrl.replace("`", "")}\` again.`);
     } else { //token data does exist, check user's profile
         var playerData = await getUserData(steamid);
-        console.log(playerData.realname);
-        console.log(tokenData.token);
+        bot.log.trace(playerData.realname);
+        bot.log.trace(tokenData.token);
         if (tokenData.token == playerData.realname.trim()) {
             await message.channel.send("Token verified. You are now a member of following groups: " + groupsToAssign.join());
             for (let i = 0; i < groupsToAssign.length; i++)

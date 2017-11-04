@@ -1,6 +1,6 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     let help = this.help(bot.pfx);
-    console.log(args);
+    bot.log.trace(args);
     if (args[0] === "-a") {
         let helpList = [];
         //SOPA DE JAVASCRIPTA
@@ -31,7 +31,7 @@
         try {
             let cmd = bot.commands[args[0]] || bot.commands[bot.aliases[args[0]]];
             if (!cmd) throw { message: "Command not found" };
-            if (bot.debug) console.log(cmd);
+            bot.log.trace(cmd);
             let help = cmd.help(bot.pfx);
             message.channel.send({
                 embed: {

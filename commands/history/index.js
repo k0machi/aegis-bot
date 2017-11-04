@@ -6,7 +6,7 @@
             try {
                 var member = await message.guild.fetchMember(row.User_Id);
             } catch (e) {
-                console.log(e.message);
+                bot.log.error(e.message);
             }
             let msgDate = new Date(parseInt(row.Time, 10));
             history.push(

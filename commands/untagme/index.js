@@ -24,7 +24,7 @@
     }
     catch (e) {
         channel.send(e.message);
-        console.log(e);
+        bot.log.error(e);
     }
 };
 

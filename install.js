@@ -9,7 +9,7 @@ const run = async () => {
     commands.forEach(file => {
         var dirPath = commandDir + file;
         fs.copyFileSync(dirPath + "/command.yml.dist", dirPath + "/command.yml");
-        console.log("Copied config for " + dirPath);
+        console.log("Copied config for " + dirPath); //eslint-disable-line no-console
     });
 };
 

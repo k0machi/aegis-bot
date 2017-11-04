@@ -49,18 +49,16 @@ Template.prototype = {
     commentFlag: false,
 
     callback: function (err, object) {
-        if (this.bot.debug) {
-            console.log(
-                "-------------------TASK CALLBACK-------------------\n",
-                object,
-                "\n",
-                object.data[0].fields,
-                "\n",
-                "-------------------TASK CALLBACK-------------------"
-            );
-        }
+        this.bot.log.trace(
+            "-------------------TASK CALLBACK-------------------\n",
+            object,
+            "\n",
+            object.data[0].fields,
+            "\n",
+            "-------------------TASK CALLBACK-------------------"
+        );
         if (!this.bot.phabricator.check_space(object.data[0].fields.spacePHID)) {
-            if (this.bot.debug) console.log("(!!) Restricted space encountered: ", object.data[0].fields.spacePHID);
+            this.bot.log.debug("(!!) Restricted space encountered: ", object.data[0].fields.spacePHID);
             return false;
         }
         this.template.fields[0].name = object.data[0].fields.name;
