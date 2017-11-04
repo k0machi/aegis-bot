@@ -148,6 +148,7 @@ class Aigis
      * Checks if a member posses required permissions
      * @param {Discord.GuildMember} member member to check permissions against
      * @param {string|array} perm Permissions(s) to check
+     * @returns {boolean} true for having said permissions
      */
     verifyPermission(member, perm) {
         let perms = member.hasPermission(perm, false, true);
@@ -191,6 +192,7 @@ class Aigis
      * Checks if user requesting command with cooldown
      * @param {Discord.Message} message message to retrieve guild and member ids from
      * @param {string} command command string
+     * @returns {boolean|number} no cooldown or amount of milliseconds remaining
      */
     checkCooldown(message, command) {
         var cmd = this.commands[command] || this.commands[this.aliases[command]];
@@ -237,6 +239,7 @@ class Aigis
     /**
      * Checks if a user is a member of blacklisted group (hardcoded as "Vandal")
      * @param {Discord.GuildMember} member 
+     * @returns {boolean} status
      */
     checkUserBlacklist(member) {
         if (member.roles.find("name", "Vandal")) return true;
@@ -246,6 +249,7 @@ class Aigis
      * Checks if tag exists and is available
      * @param {string} tagname tag to check
      * @param {Discord.Guild} guild
+     * @returns {Object, boolean} Returns either the Object containing Discord.Role and DB Field or boolean indicating non-existence
      */
     async checkTag(tagname, guild) {
         let role_db = await this.sql.get("SELECT * FROM UserTags WHERE tagname == ?", [tagname]);
@@ -299,6 +303,7 @@ class Aigis
      * @param {Discord.User} user User that request untag
      * @param {Discord.Guild} guild Guild of the user
      * @param {Discord.Channel} channel Channel to post messages to
+     * @returns {boolean} Returns true if role was successfuly removed from user and false if role doesn't exist
      */
     async untagMe(gname, user, guild, channel) { //TODO: rework arguments
         try {
@@ -334,6 +339,7 @@ class Aigis
     /**
      * Parses YAML config
      * @param {string} path path to yml file
+     * @returns {Object} parsed YAML
      */
     parseYAML(path) {
         return this.yaml.safeLoad(this.fs.readFileSync(path, "utf8"));
