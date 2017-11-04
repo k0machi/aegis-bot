@@ -26,6 +26,7 @@ class Aigis
         this.commands = {};
         this.aliases = {};
     }
+    
     /**
      * Main bot initialization and login
      */
@@ -91,6 +92,7 @@ class Aigis
         this.client.login(this.config.app_token);
         this.setPresence();
     }
+
     /**
      * Retrieves a welcome message from database and sends it to the new member
      * @param {Discord.GuildMember} member 
@@ -102,6 +104,7 @@ class Aigis
         if (!channel) throw { message: "SayHello(): Channel not found" };
         channel.send(member + ", " + wmsg.Message);
     }
+
     /**
      * Processes phabricator feed.http-hooks messages
      * @param {Object} post 
@@ -110,6 +113,7 @@ class Aigis
         var message = Object.create(this.phabricator.message_factory);
         message.init(post, this);
     }
+
     /**
      * Sets presence on Discord
      */
@@ -120,6 +124,7 @@ class Aigis
             if (this.debug) console.log(this.aliases);
         });
     }
+
     /**
      * Assigns command verb to a command object
      * @param {string} verb command string
@@ -128,6 +133,7 @@ class Aigis
     registerCommand(verb, object) {
         this.commands[verb] = object;
     }
+
     /**
      * Registers an alias to point to a command
      * @param {string} alias 
@@ -136,6 +142,7 @@ class Aigis
     registerAlias(alias, verb) {
         this.aliases[alias] = verb;
     }
+
     /**
      * Retrieves tagmode for the guild
      * @param {Discord.Guild} guild guild to get tagmode for
@@ -144,6 +151,7 @@ class Aigis
         let mode = await this.sql.get("SELECT * FROM TagModeData WHERE guildId == ?", [guild.id]);
         return mode.mode;
     }
+
     /**
      * Checks if a member posses required permissions
      * @param {Discord.GuildMember} member member to check permissions against
@@ -158,6 +166,7 @@ class Aigis
             return false;
         }
     }
+
     /**
      * Callback for "message" event
      * @param {Discord.Message} message message to process
@@ -188,6 +197,7 @@ class Aigis
             message.channel.send(e.message);
         }
     }
+
     /**
      * Checks if user requesting command with cooldown
      * @param {Discord.Message} message message to retrieve guild and member ids from
@@ -217,6 +227,7 @@ class Aigis
             return false;
         }
     }
+
     /**
      * Switches tag modes of a guild
      * @param {Discord.Guild} guild Guild to switch tagmode for
@@ -236,6 +247,7 @@ class Aigis
             message.channel.send("Switched tagging mode to protected - only people with \"Manage Roles\" can create new tags");
         }
     }
+
     /**
      * Checks if a user is a member of blacklisted group (hardcoded as "Vandal")
      * @param {Discord.GuildMember} member 
@@ -245,6 +257,7 @@ class Aigis
         if (member.roles.find("name", "Vandal")) return true;
         return false;
     }
+
     /**
      * Checks if tag exists and is available
      * @param {string} tagname tag to check
@@ -258,6 +271,7 @@ class Aigis
         if (!role_server && !role_db) return false;
         if (role_server && !role_db) throw { message: "Unmanaged role - not allowed!" };
     }
+
     /**
      * Creates a tag and returns it
      * @param {string} tagname tag name
@@ -277,6 +291,7 @@ class Aigis
         if (!result) throw { message: "Error accessing database" };
         return role;
     }
+
     /**
      * Deletes a tag from a guild
      * @param {string} tagname tag string
@@ -297,34 +312,7 @@ class Aigis
             channel.send(e.message);
         }
     }
-    /**
-     * Removes a tag from user and deletes it if it's not used anymore
-     * @param {string} gname Username
-     * @param {Discord.User} user User that request untag
-     * @param {Discord.Guild} guild Guild of the user
-     * @param {Discord.Channel} channel Channel to post messages to
-     * @returns {boolean} Returns true if role was successfuly removed from user and false if role doesn't exist
-     */
-    async untagMe(gname, user, guild, channel) { //TODO: rework arguments
-        try {
-            let member = await guild.members.find("id", user.id); //TODO: REPLACE USER WITH Discord.GuildMember type
-            let role = await this.checkTag(gname, guild);
-            if (role) {
-                if (!member.roles.has(role.role.id)) { channel.send("You don't seem to have this role."); return false; }
-                await member.removeRole(role.role, "User tag removed");
-                channel.send("Tag \"" + role.role.name + "\" removed!");
-                if (role.role.members.array().length === 0) this.deleteTag(role.role.name, guild, channel, this.client.user);
-                return true;
-            }
-            else {
-                channel.send("This tag doesn't seem to exist!");
-            }
-        }
-        catch (e) {
-            channel.send(e.message);
-            console.log(e);
-        }
-    }
+
     /**
      * Inserts a history record into db
      * @param {Discord.Snowflake} id user id
@@ -336,6 +324,7 @@ class Aigis
     logToDB(id, time, cmd, args, guild) {
         this.sql.run("INSERT INTO History ([User_Id], [Time], [Action], [Arguments], [Guild]) VALUES (?, ?, ?, ?, ?)", [id, time, cmd, JSON.stringify(args), guild.id]);
     }
+
     /**
      * Parses YAML config
      * @param {string} path path to yml file
