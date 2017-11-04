@@ -1,7 +1,6 @@
 /node_modules/
 /.vs/
 /.vscode/
-.eslintrc.yml
 config.json
 /obj/Debug
 /bin
