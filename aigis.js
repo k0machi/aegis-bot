@@ -22,7 +22,7 @@ class Aigis
         this.aliases = {};
     }
 
-    async Run() {
+    async run() {
         this.server = http.createServer((req, res) => {
             res.end();
         });
