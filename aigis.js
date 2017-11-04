@@ -84,7 +84,7 @@ class Aigis
                 req.on("end", function () {
                     var post = qs.parse(body);
                     this.postPhabStory(post);
-                });
+                }.bind(this));
             }
         }.bind(this));
 
