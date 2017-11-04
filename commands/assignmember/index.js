@@ -1,7 +1,6 @@
 ﻿module.exports.exec = async (bot, message, args) => {
     const localConfig = bot.parseYAML(__dirname + "/command.yml");
     console.log(localConfig);
-    var sql = bot.sql;
     var tableName = "VerificationTokens";
     var steamKey = bot.config.steam_api_token;
     const axios = require("axios");
@@ -20,7 +19,6 @@
     if (groupsToAssign.length == 0)
         throw { message: "You are not in any Steam groups eligible for role assignment" };
 
-    test = await checkIfTableExists(sql); //TODO: get rid of this later
 
     var discordId = message.author.id;
     var guildId = message.guild.id;
@@ -29,20 +27,20 @@
     if (!tokenData) {// tokenData does not exist yet, create new one
         const uuidv4 = require("uuid/v4");
         let token = uuidv4();
-        ins = await bot.sql.run("INSERT INTO " + tableName + "([discordid], [guildid], [token], [createdat]) VALUES (?, ?, ?, ?)", [discordId, guildId, token, Date.now()]);
-        const msg = await message.channel.send(`Here is your token: \`\`\`${token}\`\`\`\n\nGo to \"Edit Profile\", paste that into your profile's \"Real Name\" field and run \`$$verify ${steamUrl.replace("`", "")}\` again.`);
+        await bot.sql.run("INSERT INTO " + tableName + "([discordid], [guildid], [token], [createdat]) VALUES (?, ?, ?, ?)", [discordId, guildId, token, Date.now()]);
+        await message.channel.send(`Here is your token: \`\`\`${token}\`\`\`\n\nGo to "Edit Profile", paste that into your profile's "Real Name" field and run \`$$verify ${steamUrl.replace("`", "")}\` again.`);
     } else { //token data does exist, check user's profile
         var playerData = await getUserData(steamid);
         console.log(playerData.realname);
         console.log(tokenData.token);
         if (tokenData.token == playerData.realname.trim()) {
-            const msg = await message.channel.send("Token verified. You are now a member of following groups: " + groupsToAssign.join());
+            await message.channel.send("Token verified. You are now a member of following groups: " + groupsToAssign.join());
             for (let i = 0; i < groupsToAssign.length; i++)
             {
                 let role = await message.guild.roles.find("name", groupsToAssign[i]);
-                let rv = await message.member.addRole(role, `A new ${role.name} joins! ${message.author.username}`);
+                await message.member.addRole(role, `A new ${role.name} joins! ${message.author.username}`);
             }
-            del = bot.sql.run(`DELETE FROM ${tableName} WHERE [token] = ?`, [tokenData.token]);
+            bot.sql.run(`DELETE FROM ${tableName} WHERE [token] = ?`, [tokenData.token]);
         } else {
             throw { message: "Token `"+tokenData.token+"` not found in profile" };
         }
@@ -75,16 +73,6 @@
         if (players.length == 0)
             throw { message: "Unable to read stats for steamid " + steamid };
         return players[0];
-    }
-
-    async function checkIfTableExists(sql) {
-        try {
-            let get = await sql.get("SELECT * FROM " + tableName + " WHERE discordid = 0");
-
-        } catch (error) {
-            console.log(error);
-            await sql.run("CREATE TABLE IF NOT EXISTS " + tableName + "(discordid TEXT, guildid TEXT, token TEXT, createdat INTEGER)");
-        }
     }
 
     async function checkGroupMembership(groups, steamid) {

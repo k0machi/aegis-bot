@@ -1,5 +1,5 @@
 ﻿const fs = require("fs");
-const yaml = require("js-yaml");
+const yaml = require("js-yaml"); //eslint-disable-line no-unused-vars
 const { promisify } = require("util");
 const directoryReader = promisify(require("fs").readdir);
 const commandDir = "./commands/";

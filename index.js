@@ -51,14 +51,14 @@ const launch = async () => {
         Aigis.sayHello(member, member.guild.id);
     });
 
-    server.on("request", (req, res) => {
+    server.on("request", (req, res) => { //eslint-disable-line no-unused-vars
         if (req.url.includes("phab-story")) {
             if (Aigis.debug) console.log("Endpoint phab-story called");
             var body = "";
             req.on("data", function (data) {
                 body += data;
                 if (body.length > 1e6)
-                    request.connection.destroy();
+                    req.connection.destroy();
             });
 
             req.on("end", function () {

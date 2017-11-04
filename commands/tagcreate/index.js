@@ -6,7 +6,7 @@
     var channel = message.channel;
 
     try {
-        result = await bot.checkTag(tagname, guild);
+        let result = await bot.checkTag(tagname, guild);
         if (result) { channel.send("Tag already exists"); return; }
         bot.createTag(tagname, guild, user, time);
         channel.send(`Tag "${tagname}" created!`);

@@ -1,5 +1,5 @@
-﻿module.exports.exec = async (bot, message, args) => {
-    mode = await bot.getTagMode(message.guild);
+﻿module.exports.exec = async (bot, message, args) => { //eslint-disable-line no-unused-vars
+    let mode = await bot.getTagMode(message.guild);
     message.channel.send(`Current tag mode: ${mode ? "Protected" : "Public"}`);      
 };
 

@@ -1,15 +1,15 @@
-﻿module.exports.exec = async (bot, message, args) => {
+﻿module.exports.exec = async (bot, message, args) => { //eslint-disable-line no-unused-vars
     var guild = message.guild;
-    mode = await bot.sql.get("SELECT * FROM TagModeData WHERE guildId == ?", [guild.id]);
+    let mode = await bot.sql.get("SELECT * FROM TagModeData WHERE guildId == ?", [guild.id]);
     if (mode) {
-        md = await bot.sql.run("UPDATE TagModeData SET [mode] = ? WHERE guildid == ?", [!mode.mode, mode.guildId]);
+        bot.sql.run("UPDATE TagModeData SET [mode] = ? WHERE guildid == ?", [!mode.mode, mode.guildId]);
         if (mode.mode) {
             message.channel.send("Switched tagging mode to public - everyone can create tags!");
         } else {
             message.channel.send("Switched tagging mode to protected - only people with \"Manage Roles\" can create new tags");
         }
     } else {
-        md = await bot.sql.run("INSERT INTO TagModeData ([guildId], [mode]) VALUES (?, ?)", [guild.id, 1]);
+        bot.sql.run("INSERT INTO TagModeData ([guildId], [mode]) VALUES (?, ?)", [guild.id, 1]);
         message.channel.send("Switched tagging mode to protected - only people with \"Manage Roles\" can create new tags");
     }
 };

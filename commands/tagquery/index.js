@@ -4,10 +4,10 @@
     var channel = message.channel;
 
     try {
-        result = await bot.checkTag(tagname, guild);
+        let result = await bot.checkTag(tagname, guild);
         if (result) {
-            user = await bot.client.fetchUser(result.db.creatorid);
-            time = new Date(result.db.createdTimestamp);
+            let user = await bot.client.fetchUser(result.db.creatorid);
+            let time = new Date(result.db.createdTimestamp);
             channel.send({
                 embed: {
                     author: {

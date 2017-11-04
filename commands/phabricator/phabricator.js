@@ -77,11 +77,11 @@ module.exports = {
                     this.object,
                     "\n-------------------END FEED STORY DUMP-------------------\n"
                 );
-            var ph = this.bot.phabricator;
-            var ph_obj = this.object[Object.keys(this.object)[0]];
-            guild = this.bot.client.guilds.find("id", this.bot.config.phab_story_guild_id);
+            let ph = this.bot.phabricator;
+            let ph_obj = this.object[Object.keys(this.object)[0]];
+            let guild = this.bot.client.guilds.find("id", this.bot.config.phab_story_guild_id);
             if (!guild) throw { message: "Not a member of dev guild" };
-            channel = guild.channels.find("id", this.bot.config.phab_story_channel_id);
+            let channel = guild.channels.find("id", this.bot.config.phab_story_channel_id);
             if (!channel) throw { message: "Unknown channel" };
             try {
                 //TODO:

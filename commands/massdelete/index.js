@@ -1,5 +1,5 @@
 ﻿module.exports.exec = async (bot, message, args) => {
-    amount = parseInt(args[0], 10) || 1;
+    let amount = parseInt(args[0], 10) || 1;
 
     var guild = message.guild;
     var channel = message.channel;

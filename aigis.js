@@ -35,11 +35,11 @@ module.exports = {
     },
 
     sayHello: async function (member, gid) {
-        wmsg = await this.sql.get("SELECT * FROM WelcomeMessages WHERE guildId == ?", [gid]);
+        let wmsg = await this.sql.get("SELECT * FROM WelcomeMessages WHERE guildId == ?", [gid]);
         if (!wmsg) return;
-        guild = this.client.guilds.find("id", wmsg.GuildId);
+        let guild = this.client.guilds.find("id", wmsg.GuildId);
         if (!guild) throw { message: "WMSG: Guild not found" };
-        channel = guild.channels.find("id", wmsg.ChannelId);
+        let channel = guild.channels.find("id", wmsg.ChannelId);
         if (!channel) throw { message: "WMSG: Unknown channel" };
         channel.send(member + ", " + wmsg.Message);
     },
@@ -62,12 +62,12 @@ module.exports = {
     },
 
     getTagMode: async function (guild) {
-        mode = await this.sql.get("SELECT * FROM TagModeData WHERE guildId == ?", [guild.id]);
+        let mode = await this.sql.get("SELECT * FROM TagModeData WHERE guildId == ?", [guild.id]);
         return mode.mode;
     },
 
     verifyPermission: function (member, perm) {
-        perms = member.hasPermission(perm, false, true);
+        let perms = member.hasPermission(perm, false, true);
         if (perms) {
             return true;
         } else {
@@ -87,21 +87,21 @@ module.exports = {
                 this.commands["aigis"].exec(this, message, [args[0] === "-a" ? "-a": command]);
                 return;
             }
-            perm = await this.verifyPermission(message.member, cmd.settings.permissions);
+            let perm = await this.verifyPermission(message.member, cmd.settings.permissions);
             if (!perm) throw { message: `Missing permissions: ${cmd.settings.permissions}` };
             var cd = this.checkCooldown(message, command);
             console.log(this.cooldowns);
-            if (!cd) throw { message: `Please wait before executing \`${this.pfx}${cmdName}\` again` };
+            if (!cd) throw { message: `Please wait before executing \`${this.pfx}${cmd.meta.action}\` again` };
             await cmd.exec(this, message, args);
         } catch (e) {
             message.channel.send(e.message);
         }
     },
     checkCooldown: function (message, command) {
-        cmd = this.commands[command] || this.commands[this.aliases[command]];
-        cmdName = cmd.meta.action;
+        var cmd = this.commands[command] || this.commands[this.aliases[command]];
+        var cmdName = cmd.meta.action;
         try {
-            var cd = this.cooldowns[message.member.guild.id][message.member.user.id][cmdName];
+            let cd = this.cooldowns[message.member.guild.id][message.member.user.id][cmdName];
             if (parseInt(message.createdTimestamp) < parseInt(cd) + cmd.settings.cooldown * 1000) {
                 return false;
             } else {
@@ -109,7 +109,7 @@ module.exports = {
                 return true;
             }
         } catch (e) {
-            var cd = this.cooldowns[message.member.guild.id];
+            let cd = this.cooldowns[message.member.guild.id];
             if (!cd) {
                 this.cooldowns[message.member.guild.id] = {};
                 cd = this.cooldowns[message.member.guild.id];
@@ -121,16 +121,16 @@ module.exports = {
     },
 
     switchTagMode: async function (guild, message) {
-        mode = await this.sql.get("SELECT * FROM TagModeData WHERE guildId == ?", [guild.id]);
+        var mode = await this.sql.get("SELECT * FROM TagModeData WHERE guildId == ?", [guild.id]);
         if (mode) {
-            md = await this.sql.run("UPDATE TagModeData SET [mode] = ? WHERE guildid == ?", [!mode.mode, mode.guildId]);
+            await this.sql.run("UPDATE TagModeData SET [mode] = ? WHERE guildid == ?", [!mode.mode, mode.guildId]);
             if (mode.mode) {
                 message.channel.send("Switched tagging mode to public - everyone can create tags!");
             } else {
                 message.channel.send("Switched tagging mode to protected - only people with \"Manage Roles\" can create new tags");
             }
         } else {
-            md = await this.sql.run("INSERT INTO TagModeData ([guildId], [mode]) VALUES (?, ?)", [guild.id, 1]);
+            await this.sql.run("INSERT INTO TagModeData ([guildId], [mode]) VALUES (?, ?)", [guild.id, 1]);
             message.channel.send("Switched tagging mode to protected - only people with \"Manage Roles\" can create new tags");
         }
     },
@@ -141,29 +141,30 @@ module.exports = {
     },
 
     checkTag: async function (tagname, guild) {
-        role_db = await this.sql.get("SELECT * FROM UserTags WHERE tagname == ?", [tagname]);
-        role_server = await guild.roles.find("name", tagname);
+        let role_db = await this.sql.get("SELECT * FROM UserTags WHERE tagname == ?", [tagname]);
+        let role_server = await guild.roles.find("name", tagname);
         if (role_db && role_server) return { "role": role_server, "db": role_db };
         if (!role_server && !role_db) return false;
         if (role_server && !role_db) throw { message: "Unmanaged role - not allowed!" };
     },
 
     createTag: async function (tagname, guild, user, time) {
-        role = await guild.createRole({
+        let role = await guild.createRole({
             name: tagname,
             color: "00e5ff",
             permissions: 0,
             mentionable: true
         }, `${user.username} requested a non-existent user-defined tag`);
-        result = await this.sql.run("INSERT INTO UserTags ([tagname], [roleid], [guildid], [creatorid], [createdTimestamp]) VALUES (?,?,?,?,?)", [tagname, role.id, guild.id, user.id, time]);
+        let result = await this.sql.run("INSERT INTO UserTags ([tagname], [roleid], [guildid], [creatorid], [createdTimestamp]) VALUES (?,?,?,?,?)", [tagname, role.id, guild.id, user.id, time]);
         if (!result) throw { message: "Error accessing database" };
         return role;
     },
-
-    deleteTag: async function (tagname, guild, channel, user) {
+    
+    //TODO: Refactor argument list
+    deleteTag: async function (tagname, guild, channel, user) { //eslint-disable-line no-unused-vars
         var result;
         try {
-            role = await this.checkTag(tagname, guild);
+            let role = await this.checkTag(tagname, guild);
             if (!role) throw { message: "Role doesn't exist" };
             role.role.delete("A user-created tag is now empty");
             result = await this.sql.run("DELETE FROM UserTags WHERE tagname == ? AND guildid == ?", [tagname, guild.id]);
@@ -176,11 +177,11 @@ module.exports = {
 
     untagMe: async function (gname, user, guild, channel) {
         try {
-            member = await guild.members.find("id", user.id);
-            role = await this.checkTag(gname, guild);
+            let member = await guild.members.find("id", user.id);
+            let role = await this.checkTag(gname, guild);
             if (role) {
                 if (!member.roles.has(role.role.id)) { channel.send("You don't seem to have this role."); return false; }
-                rv = await member.removeRole(role.role, "User tag removed");
+                await member.removeRole(role.role, "User tag removed");
                 channel.send("Tag \"" + role.role.name + "\" removed!");
                 if (role.role.members.array().length === 0) this.deleteTag(role.role.name, guild, channel, this.client.user);
                 return true;

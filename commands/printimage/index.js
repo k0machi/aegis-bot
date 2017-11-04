@@ -1,11 +1,11 @@
 ﻿module.exports.exec = (bot, message, args) => {
     var gd = require("node-gd");
-    var fileName = __dirname + "/resources/sign.png";
+    var picturePath = __dirname + "/resources/sign.png";
     var textToPrint = args.join(" ");
     if (textToPrint.length > 500) throw { message: "Your message is too long!" };
 
-    if (bot.debug) console.log(`Opening ${fileName}`);
-    let image = gd.createFromPng(fileName);
+    if (bot.debug) console.log(`Opening ${picturePath}`);
+    let image = gd.createFromPng(picturePath);
     if (bot.debug) console.log("Open ", image);
     let font = `${__dirname}/resources/Roboto-Regular.ttf`;
     let txtColor = image.colorAllocate(0, 0, 0);
@@ -31,9 +31,9 @@
     let xOffset = 28;
     let yOffset = 84;
     image.stringFT(txtColor, font, szFont, 0, xOffset, yOffset, lines.join("\n"));
-    var fileName = Math.floor(Date.now());
+    var filename = Math.floor(Date.now());
     if (bot.debug) console.log("Saving...");
-    let path = `./temp/${fileName}.png`;
+    let path = `./temp/${filename}.png`;
     image.savePng(path, 1, function (err) { 
         if (err) throw err;
         message.channel.send(`Here you go ${message.author}`, {

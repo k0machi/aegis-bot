@@ -28,11 +28,11 @@
 
 Template.prototype = {
     key: "CMIT",
-    callback: function (err, object) {
+    callback: function (err, object) { //eslint-disable-line no-unused-vars
         this.send(this.channel);
     },
     send: async function (channel) {
-        rv = channel.send({
+        channel.send({
             embed: this.template
         });
     }

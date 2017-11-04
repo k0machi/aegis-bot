@@ -82,7 +82,7 @@ Template.prototype = {
     },
 
     send: async function (channel) {
-        rv = channel.send({
+        channel.send({
             embed: this.template
         });
     }

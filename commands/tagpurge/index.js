@@ -6,24 +6,24 @@
         message.mentions.members.forEach(async (mbr) => {
             console.log(mbr.id);
             console.log(mbr.guild.id);
-            dbtags = await bot.sql.all("SELECT * FROM UserTags WHERE guildid == ? AND creatorid == ?", [mbr.guild.id, mbr.id]);
-            tags = [];
-            dbtags.forEach((row, rowid) => {
+            let dbtags = await bot.sql.all("SELECT * FROM UserTags WHERE guildid == ? AND creatorid == ?", [mbr.guild.id, mbr.id]);
+            let tags = [];
+            dbtags.forEach((row, rowid) => { //eslint-disable-line no-unused-vars
                 tags.push(row.tagname);
             });
             for (var i = 0; i < tags.length; i++)
-                rv = await bot.deleteTag(tags[i], message.guild, message.channel, bot.client.user);
+                await bot.deleteTag(tags[i], message.guild, message.channel, bot.client.user);
         });
     }
     if (args.join(" ") == bot.config.purgeKey) {
-        dbtags = await bot.sql.all("SELECT * FROM UserTags WHERE guildid == ?", [message.guild.id]);
-        tags = [];
-        dbtags.forEach((row, rowid) => {
+        let dbtags = await bot.sql.all("SELECT * FROM UserTags WHERE guildid == ?", [message.guild.id]);
+        let tags = [];
+        dbtags.forEach((row, rowid) => { //eslint-disable-line no-unused-vars
             tags.push(row.tagname);
         });
         for (var i = 0; i < tags.length; i++)
-            rv = await bot.deleteTag(tags[i], message.guild, message.channel, bot.client.user);
-        rv = await message.channel.send("Purge complete!");
+            await bot.deleteTag(tags[i], message.guild, message.channel, bot.client.user);
+        await message.channel.send("Purge complete!");
     }
 };
 

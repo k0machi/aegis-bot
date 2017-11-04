@@ -1,4 +1,4 @@
-﻿module.exports.exec = async (bot, message, args) => {
+﻿module.exports.exec = async (bot, message, args) => { //eslint-disable-line no-unused-vars
     bot.postPhabStory({
         storyID: "1898",
         storyType: "PhabricatorApplicationTransactionFeedStory",

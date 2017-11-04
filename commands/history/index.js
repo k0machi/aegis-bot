@@ -1,15 +1,14 @@
-﻿module.exports.exec = async (bot, message, args) => {
+﻿module.exports.exec = async (bot, message, args) => { //eslint-disable-line no-unused-vars
     var sql = bot.sql;
     var history = [];
     sql.all("SELECT * FROM History").then(async (rows) => {
         await rows.forEach(async (row, rowid) => {
             try {
-                user = await bot.client.fetchUser(row.User_Id + "", true);
-                member = await message.guild.fetchMember(row.User_Id);
+                var member = await message.guild.fetchMember(row.User_Id);
             } catch (e) {
                 console.log(e.message);
             }
-            msgDate = new Date(parseInt(row.Time, 10));
+            let msgDate = new Date(parseInt(row.Time, 10));
             history.push(
                 "User "
                 + member
