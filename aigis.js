@@ -89,7 +89,9 @@ module.exports = {
             if (!perm) throw { message: `Missing permissions: ${cmd.settings.permissions}` };
             let cd = this.checkCooldown(message, command);
             if (this.debug) console.log(this.cooldowns);
-            if (!cd) throw { message: `Please wait before executing \`${this.pfx}${cmd.meta.action}\` again` };
+            if (cd) throw {
+                message: `Please wait ${parseInt(cd /1000)} seconds before executing \`${this.pfx}${cmd.meta.action}\` again` 
+            };
             await cmd.exec(this, message, args);
         } catch (e) {
             message.channel.send(e.message);
@@ -100,11 +102,12 @@ module.exports = {
         var cmdName = cmd.meta.action;
         try {
             let cd = this.cooldowns[message.member.guild.id][message.member.user.id][cmdName];
-            if (parseInt(message.createdTimestamp) < parseInt(cd) + cmd.settings.cooldown * 1000) {
-                return false;
+            let secondsRemaining = (parseInt(cd) + cmd.settings.cooldown * 1000) - parseInt(message.createdTimestamp);
+            if (secondsRemaining > 0) {
+                return secondsRemaining;
             } else {
                 cd = message.createdTimestamp;
-                return true;
+                return false;
             }
         } catch (e) {
             let cd = this.cooldowns[message.member.guild.id];
@@ -114,7 +117,7 @@ module.exports = {
             }
             if (!cd[message.member.user.id]) cd[message.member.user.id] = {};
             if (!cd[message.member.user.id][cmdName]) cd[message.member.user.id][cmdName] = message.createdTimestamp;
-            return true;
+            return false;
         }
     },
 
