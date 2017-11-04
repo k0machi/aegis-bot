@@ -4,9 +4,14 @@ const directoryReader = promisify(require("fs").readdir);
 const http = require("http");
 const qs = require("querystring");
 const canduit = require("canduit");
-
-class Aigis 
+/**
+ * Aigis bot
+ */
+class Aigis
 {
+    /**
+     * @constructor
+     */
     constructor() {
         if (process.argv.includes("--aidebug")) {
             this.debug = true;
@@ -21,7 +26,9 @@ class Aigis
         this.commands = {};
         this.aliases = {};
     }
-
+    /**
+     * Main bot initialization and login
+     */
     async run() {
         this.server = http.createServer((req, res) => {
             res.end();
@@ -84,7 +91,10 @@ class Aigis
         this.client.login(this.config.app_token);
         this.setPresence();
     }
-
+    /**
+     * Retrieves a welcome message from database and sends it to the new member
+     * @param {Discord.GuildMember} member 
+     */
     async sayHello(member) {
         let wmsg = await this.sql.get("SELECT * FROM WelcomeMessages WHERE guildId == ?", [member.guild.id]);
         if (!wmsg) return;
@@ -92,12 +102,17 @@ class Aigis
         if (!channel) throw { message: "SayHello(): Channel not found" };
         channel.send(member + ", " + wmsg.Message);
     }
-
+    /**
+     * Processes phabricator feed.http-hooks messages
+     * @param {Object} post 
+     */
     postPhabStory(post) {
         var message = Object.create(this.phabricator.message_factory);
         message.init(post, this);
     }
-
+    /**
+     * Sets presence on Discord
+     */
     setPresence() {
         this.client.on("ready", async () => {
             console.log("Initialization finished.");
@@ -105,20 +120,35 @@ class Aigis
             if (this.debug) console.log(this.aliases);
         });
     }
-
+    /**
+     * Assigns command verb to a command object
+     * @param {string} verb command string
+     * @param {Object} object command object
+     */
     registerCommand(verb, object) {
         this.commands[verb] = object;
     }
-
+    /**
+     * Registers an alias to point to a command
+     * @param {string} alias 
+     * @param {string} verb 
+     */
     registerAlias(alias, verb) {
         this.aliases[alias] = verb;
     }
-
+    /**
+     * Retrieves tagmode for the guild
+     * @param {Discord.Guild} guild guild to get tagmode for
+     */
     async getTagMode(guild) {
         let mode = await this.sql.get("SELECT * FROM TagModeData WHERE guildId == ?", [guild.id]);
         return mode.mode;
     }
-
+    /**
+     * Checks if a member posses required permissions
+     * @param {Discord.GuildMember} member member to check permissions against
+     * @param {string|array} perm Permissions(s) to check
+     */
     verifyPermission(member, perm) {
         let perms = member.hasPermission(perm, false, true);
         if (perms) {
@@ -127,7 +157,10 @@ class Aigis
             return false;
         }
     }
-    
+    /**
+     * Callback for "message" event
+     * @param {Discord.Message} message message to process
+     */
     async processCommand(message) {
         if (!message.content.startsWith(this.config.command_prefix)) return;
         const args = message.content.slice(this.config.command_prefix.length).trim().split(/ +/g);
@@ -154,7 +187,11 @@ class Aigis
             message.channel.send(e.message);
         }
     }
-
+    /**
+     * Checks if user requesting command with cooldown
+     * @param {Discord.Message} message message to retrieve guild and member ids from
+     * @param {string} command command string
+     */
     checkCooldown(message, command) {
         var cmd = this.commands[command] || this.commands[this.aliases[command]];
         var cmdName = cmd.meta.action;
@@ -178,8 +215,12 @@ class Aigis
             return false;
         }
     }
-
-    async switchTagMode(guild, message) {
+    /**
+     * Switches tag modes of a guild
+     * @param {Discord.Guild} guild Guild to switch tagmode for
+     * @param {Discord.Message} message used to send message back
+     */
+    async switchTagMode(guild, message) { //TODO: Redundant guild argument
         var mode = await this.sql.get("SELECT * FROM TagModeData WHERE guildId == ?", [guild.id]);
         if (mode) {
             await this.sql.run("UPDATE TagModeData SET [mode] = ? WHERE guildid == ?", [!mode.mode, mode.guildId]);
@@ -193,12 +234,19 @@ class Aigis
             message.channel.send("Switched tagging mode to protected - only people with \"Manage Roles\" can create new tags");
         }
     }
-
+    /**
+     * Checks if a user is a member of blacklisted group (hardcoded as "Vandal")
+     * @param {Discord.GuildMember} member 
+     */
     checkUserBlacklist(member) {
         if (member.roles.find("name", "Vandal")) return true;
         return false;
     }
-
+    /**
+     * Checks if tag exists and is available
+     * @param {string} tagname tag to check
+     * @param {Discord.Guild} guild
+     */
     async checkTag(tagname, guild) {
         let role_db = await this.sql.get("SELECT * FROM UserTags WHERE tagname == ?", [tagname]);
         let role_server = await guild.roles.find("name", tagname);
@@ -206,7 +254,14 @@ class Aigis
         if (!role_server && !role_db) return false;
         if (role_server && !role_db) throw { message: "Unmanaged role - not allowed!" };
     }
-
+    /**
+     * Creates a tag and returns it
+     * @param {string} tagname tag name
+     * @param {Discord.Guild} guild guild to create the role in
+     * @param {Discord.User} user user that requsted the role
+     * @param {string} time timestamp
+     * @returns {Discord.Role} Created role
+     */
     async createTag(tagname, guild, user, time) {
         let role = await guild.createRole({
             name: tagname,
@@ -218,7 +273,13 @@ class Aigis
         if (!result) throw { message: "Error accessing database" };
         return role;
     }
-
+    /**
+     * Deletes a tag from a guild
+     * @param {string} tagname tag string
+     * @param {Discord.Guild} guild Guild to delete tag from
+     * @param {Discord.Channel} channel Used to post reply
+     * @param {Discord.User} user Used to post to audit log
+     */
     async deleteTag(tagname, guild, channel, user) { //eslint-disable-line no-unused-vars
         var result;
         try {
@@ -232,10 +293,16 @@ class Aigis
             channel.send(e.message);
         }
     }
-
-    async untagMe(gname, user, guild, channel) {
+    /**
+     * Removes a tag from user and deletes it if it's not used anymore
+     * @param {string} gname Username
+     * @param {Discord.User} user User that request untag
+     * @param {Discord.Guild} guild Guild of the user
+     * @param {Discord.Channel} channel Channel to post messages to
+     */
+    async untagMe(gname, user, guild, channel) { //TODO: rework arguments
         try {
-            let member = await guild.members.find("id", user.id);
+            let member = await guild.members.find("id", user.id); //TODO: REPLACE USER WITH Discord.GuildMember type
             let role = await this.checkTag(gname, guild);
             if (role) {
                 if (!member.roles.has(role.role.id)) { channel.send("You don't seem to have this role."); return false; }
@@ -253,11 +320,21 @@ class Aigis
             console.log(e);
         }
     }
-
+    /**
+     * Inserts a history record into db
+     * @param {Discord.Snowflake} id user id
+     * @param {string} time timestamp
+     * @param {string} cmd enum name of the command
+     * @param {Object} args arguments used in the command
+     * @param {string} guild id of the guild
+     */
     logToDB(id, time, cmd, args, guild) {
         this.sql.run("INSERT INTO History ([User_Id], [Time], [Action], [Arguments], [Guild]) VALUES (?, ?, ?, ?, ?)", [id, time, cmd, JSON.stringify(args), guild.id]);
     }
-
+    /**
+     * Parses YAML config
+     * @param {string} path path to yml file
+     */
     parseYAML(path) {
         return this.yaml.safeLoad(this.fs.readFileSync(path, "utf8"));
     }
