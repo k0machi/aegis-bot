@@ -15,10 +15,6 @@
             {
                 name: null, //this.object[Object.keys(this.object)[0]].typeName,
                 value: null //this.story.storyText
-            },
-            {
-                name: "Commit message",
-                value: null
             }
         ]
     };
@@ -27,13 +23,12 @@
     this.template.author.name = this.object[Object.keys(this.object)[0]].typeName;
     this.template.fields[0].name = (new Date(parseInt(this.story.epoch, 10) * 1000)).toUTCString();
     this.template.fields[0].value = this.story.storyText;
-    bot.phabricator.endpoint.exec("differential.getcommitmessage", { revision_id: 20 }, this.callback.bind(this));
+    this.send(this.channel);
 }
 
 Template.prototype = {
     key: "DREV",
-    callback: function (err, object) {
-        this.template.fields[1].value = object;
+    callback: function (err, object) { //eslint-disable-line no-unused-vars
         this.send(this.channel);
     },
     send: async function (channel) {
