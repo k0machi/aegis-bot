@@ -64,7 +64,7 @@
             else
                 return null;
         } else {
-            let matches = url.match(/^https?:\/\/steamcommunity\.com\/profiles\/(7[0-9]{15,25})$/);
+            let matches = url.match(/^https?:\/\/steamcommunity\.com\/profiles\/(7[0-9]{15,25})\/?$/);
             if (matches && matches[1])
                 return matches[1];
             else
