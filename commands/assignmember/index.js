@@ -28,12 +28,15 @@
         const uuidv4 = require("uuid/v4");
         let token = uuidv4();
         await bot.sql.run("INSERT INTO " + tableName + "([discordid], [guildid], [token], [createdat]) VALUES (?, ?, ?, ?)", [discordId, guildId, token, Date.now()]);
+        bot.logToDB(member.id, message.createdTimestamp, "STEAM_TOKEN_CREATED", [member.user.username + " requested a verification token", token], message.guild);
         try {
             await message.author.send(`Here is your token: \`\`\`${token}\`\`\`\n\nGo to "Edit Profile", paste that into your profile's "Real Name" field and run \`$$verify ${steamUrl.replace("`", "")}\` in the ${message.channel} again.`);
+            bot.logToDB(member.id, message.createdTimestamp, "STEAM_TOKEN_SENT_DM", [member.user.username + " was sent his token via DM", token], message.guild);
         } catch (e) { //catch-all
             bot.log.trace(e);
             bot.log.warn(e.message);
             await message.channel.send(`I couldn't send instructions directly to you, so here they are:\nHere is your token: \`\`\`${token}\`\`\`\n\nGo to "Edit Profile", paste that into your profile's "Real Name" field and run \`$$verify ${steamUrl.replace("`", "")}\` again.`);
+            bot.logToDB(member.id, message.createdTimestamp, "STEAM_TOKEN_SENT_CHANNEL", [member.user.username + " was sent his token to channel", token], message.guild);
         }
     } else { //token data does exist, check user's profile
         var playerData = await getUserData(steamid);
@@ -46,6 +49,7 @@
                 let role = await message.guild.roles.find("name", groupsToAssign[i]);
                 await message.member.addRole(role, `A new ${role.name} joins! ${message.author.username}`);
             }
+            bot.logToDB(member.id, message.createdTimestamp, "STEAM_TOKEN_VERIFIED_SUCCESS", [member.user.username + " has verified his token successfully", token], message.guild);
             bot.sql.run(`DELETE FROM ${tableName} WHERE [token] = ?`, [tokenData.token]);
         } else {
             throw { message: "Token `"+tokenData.token+"` not found in profile" };
