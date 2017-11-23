@@ -6,7 +6,6 @@
     const axios = require("axios");
     var steamUrl = args[0];
     //Exit if user has any amount of roles
-    //gitlab is a good program
     if (message.member.roles.array().length > 1) throw { message: "You don't need that" };
 
     if (!steamUrl) throw { message: "This does not look like a valid Steam URL" };
@@ -29,15 +28,15 @@
         const uuidv4 = require("uuid/v4");
         let token = uuidv4();
         await bot.sql.run("INSERT INTO " + tableName + "([discordid], [guildid], [token], [createdat]) VALUES (?, ?, ?, ?)", [discordId, guildId, token, Date.now()]);
-        bot.logToDB(member.id, message.createdTimestamp, "STEAM_TOKEN_CREATED", [member.user.username + " requested a verification token", token], message.guild);
+        bot.logToDB(message.member.id, message.createdTimestamp, "STEAM_TOKEN_CREATED", [message.member.user.username + " requested a verification token", token], message.guild);
         try {
             await message.author.send(`Here is your token: \`\`\`${token}\`\`\`\n\nGo to "Edit Profile", paste that into your profile's "Real Name" field and run \`$$verify ${steamUrl.replace("`", "")}\` in the ${message.channel} again.`);
-            bot.logToDB(member.id, message.createdTimestamp, "STEAM_TOKEN_SENT_DM", [member.user.username + " was sent his token via DM", token], message.guild);
+            bot.logToDB(message.member.id, message.createdTimestamp, "STEAM_TOKEN_SENT_DM", [message.member.user.username + " was sent his token via DM", token], message.guild);
         } catch (e) { //catch-all
             bot.log.trace(e);
             bot.log.warn(e.message);
             await message.channel.send(`I couldn't send instructions directly to you, so here they are:\nHere is your token: \`\`\`${token}\`\`\`\n\nGo to "Edit Profile", paste that into your profile's "Real Name" field and run \`$$verify ${steamUrl.replace("`", "")}\` again.`);
-            bot.logToDB(member.id, message.createdTimestamp, "STEAM_TOKEN_SENT_CHANNEL", [member.user.username + " was sent his token to channel", token], message.guild);
+            bot.logToDB(message.member.id, message.createdTimestamp, "STEAM_TOKEN_SENT_CHANNEL", [message.member.user.username + " was sent his token to channel", token], message.guild);
         }
     } else { //token data does exist, check user's profile
         var playerData = await getUserData(steamid);
