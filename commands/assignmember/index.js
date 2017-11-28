@@ -49,7 +49,7 @@
                 let role = await message.guild.roles.find("name", groupsToAssign[i]);
                 await message.member.addRole(role, `A new ${role.name} joins! ${message.author.username}`);
             }
-            bot.logToDB(message.member.id, message.createdTimestamp, "STEAM_TOKEN_VERIFIED_SUCCESS", [message.member.user.username + " has verified his token successfully", token], message.guild);
+            bot.logToDB(message.member.id, message.createdTimestamp, "STEAM_TOKEN_VERIFIED_SUCCESS", [message.member.user.username + " has verified his token successfully", tokenData.token], message.guild);
             bot.sql.run(`DELETE FROM ${tableName} WHERE [token] = ?`, [tokenData.token]);
         } else {
             throw { message: "Token `"+tokenData.token+"` not found in profile" };
