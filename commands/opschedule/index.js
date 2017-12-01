@@ -35,7 +35,7 @@
             if(lookAhead < 1) //remember a few future missions
                 return;
             var entryDate = new Date(entry.date);
-            if(entryDate > new Date()){ //skip past entries
+            if(entryDate >= new Date()){ //skip past entries
                 messageText += `**When:** ${dateFormat(entryDate, "dddd, mmmm dS")}\n`;
                 if(entry.name != "")
                     messageText += `**Mission:** ${entry.name}\n`;
