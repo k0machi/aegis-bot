@@ -1,0 +1,9 @@
+active: true
+hidden: false
+aliases: []
+permissions: "SEND_MESSAGES"
+cooldown: 0
+lookahead: 2 #number of ops to display
+#"guildId": "google spreadsheet key (without http:// stuff)"
+spreadsheets:
+  "guild": "link"
