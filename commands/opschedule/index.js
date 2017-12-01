@@ -4,6 +4,8 @@
     const dateFormat = require('dateformat');
     const sheetId = localConfig.spreadsheets[message.guild.id];
     let lookAhead = localConfig.lookahead;
+    if(parseInt(args[0]) > 0)
+        lookAhead = args[0];
     if(!sheetId)
         throw {message: "No spreadsheet linked for this server"}
     
@@ -35,7 +37,9 @@
             if(lookAhead < 1) //remember a few future missions
                 return;
             var entryDate = new Date(entry.date);
-            if(entryDate >= new Date()){ //skip past entries
+            var checkDate = new Date();
+            checkDate.setDate(checkDate.getDate() - 1);
+            if(entryDate >= checkDate){ //skip past entries
                 messageText += `**When:** ${dateFormat(entryDate, "dddd, mmmm dS")}\n`;
                 if(entry.name != "")
                     messageText += `**Mission:** ${entry.name}\n`;
@@ -67,7 +71,7 @@ module.exports.help = function(pfx) {
     var data = {
         pretty: "Op schedule",
         description: "Displays a list of upcoming ops",
-        examples: `Type ${pfx}${this.meta.action} to get a list of ops, nothing special.`
+        examples: `Type ${pfx}${this.meta.action} \`amount of ops\` to get a list of upcoming ops.`
     };
 
     return data;
