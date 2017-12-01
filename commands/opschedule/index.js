@@ -71,7 +71,7 @@ module.exports.help = function(pfx) {
     var data = {
         pretty: "Op schedule",
         description: "Displays a list of upcoming ops",
-        examples: `Type ${pfx}${this.meta.action} to get a list of ops, nothing special.`
+        examples: `Type ${pfx}${this.meta.action} \`amount of ops\` to get a list of upcoming ops.`
     };
 
     return data;
