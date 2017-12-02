@@ -8,6 +8,9 @@
         lookAhead = args[0];
     if(!sheetId)
         throw {message: "No spreadsheet linked for this server"}
+
+    if (message.member.roles.array().length < 2)
+        throw { message: "This command is restricted to Members and above" };
     
     var doc = new GoogleSpreadsheet(sheetId);
     var nonEmptyRows = [];
