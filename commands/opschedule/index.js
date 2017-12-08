@@ -41,8 +41,9 @@
                 return;
             var entryDate = new Date(entry.date);
             var checkDate = new Date();
+            var timeZoneDiff = 6;
             checkDate.setDate(checkDate.getDate() - 1);
-            if(entryDate >= checkDate){ //skip past entries
+            if((checkDate - entryDate) / (1000 * 60 * 60) < (timeZoneDiff + 3) ){ //skip past entries, adjust for timzone difference and add some leeway for op length
                 messageText += `**When:** ${dateFormat(entryDate, "dddd, mmmm dS")}\n`;
                 if(entry.name != "")
                     messageText += `**Mission:** ${entry.name}\n`;
