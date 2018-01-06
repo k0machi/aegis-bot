@@ -25,6 +25,7 @@ class Aigis
         this.cooldowns = {};
         this.commands = {};
         this.aliases = {};
+        this.punishmentTimer = null;
     }
     
     /**
@@ -160,6 +161,7 @@ class Aigis
             this.log.info("Initialization finished.");
             this.client.user.setPresence({ game: { name: `say ${this.pfx}aigis`, type: 0 } });
             this.log.trace(this.aliases);
+            this.punishmentsTicker();
         });
     }
 
@@ -386,7 +388,7 @@ class Aigis
     }
 
     /**
-     * 
+     * Creates new ban record or updates existing one
      * @param {int} guildid Discord server id 
      * @param {Discord.GuildMember} guildMember Member affected
      * @param {int} timeUntil time until punishment is active
@@ -400,15 +402,85 @@ class Aigis
             return currentRoles;
         }, []);
         let type = 1; //futureproofing, not relevant for now
-        for(var i = 0; i < currentRoles.length; i++) {
-            await guildMember.removeRole(currentRoles[i]);
-            console.log(`Role ${currentRoles[i]} removed`);
-        }
-        await guildMember.addRole(groupToAssign);
-        console.log(`Role ${groupToAssign} added`);
-        await this.sql.run("INSERT INTO Punishments ([guildid], [discordid], [privileges], [timefrom], [timeuntil], [type], [active]) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [guildid, guildMember.user.id, currentRoles.join(","), Date.now(), timeUntil, type, true]
+
+        //check if records for that user for that server and for that type currently exist
+        let existingRecord = await this.sql.get("SELECT * FROM Punishments WHERE guildid = ? AND discordid = ? AND type = ? and active = ?",
+            [guildid, guildMember.user.id, type, true]
         );
+
+        if(existingRecord && existingRecord.id) { //update timings existing record
+            console.log("Record found, updating");
+            await this.sql.run("UPDATE Punishments SET timefrom = ?, timeuntil = ? WHERE id = ?",
+                [Date.now(), timeUntil, existingRecord.id]
+            );
+        } else { //create new one
+            console.log("Record not found, creating new one...");
+            await this.sql.run("INSERT INTO Punishments ([guildid], [discordid], [privileges], [timefrom], [timeuntil], [type], [active]) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                [guildid, guildMember.user.id, currentRoles.join(","), Date.now(), timeUntil, type, true]
+            );
+
+            //strip all roles except @everyone
+            let stripPromises = currentRoles.map((el) => {
+                return guildMember.removeRole(el);
+            });
+            await Promise.all(stripPromises);
+
+            //add banned role
+            await guildMember.addRole(groupToAssign);
+            console.log(`Punishment role ${groupToAssign} added`);
+        }
+        this.punishmentsTicker();
+
+    }
+
+    /**
+     * This function will be called:
+     *  a) on bot restart
+     *  b) every time new user is added to punishment record
+     *  c) whenever it schedules itself
+     * It scans the table for any bans that expired but are still active and unbans that user
+     * After that it searches the table for the closest future ban and schedules itself to be called once that ban expires
+     * If no ban is found it schedules itself to be called in 5 minutes in very unlikely case the timings aligned and we skipped over one ban
+     */
+    async punishmentsTicker() {
+        let usersToUnban = await this.sql.all("SELECT * FROM Punishments WHERE timeuntil <= ? AND active = ?", 
+            [Date.now(), true]
+        );
+    
+        let idsAffected = [];
+        for(var i = 0; i < usersToUnban.length; i++) {
+            let groupToRemove = await this.dynamicConfig.getValue(usersToUnban[i].guildid, "punish.role");
+            let currentGuild = this.client.guilds.get(usersToUnban[i].guildid);
+            let currentMember = currentGuild.members.get(usersToUnban[i].discordid);
+
+            //remove banned group
+            await currentMember.removeRole(groupToRemove);
+
+            let groupsToRestore = usersToUnban[i].privileges.split(",");
+            let restorePromises = groupsToRestore.map((el) => {
+                return currentMember.addRole(el);
+            });
+            await Promise.all(restorePromises); //wait until all groups are restored
+            idsAffected.push(usersToUnban[i].id);
+        }
+
+        if(idsAffected && idsAffected.length) {
+            let whereIds = idsAffected.join(",");
+            await this.sql.run("UPDATE Punishments SET active = 0 WHERE id IN("+whereIds+")");
+            this.log.info(`Unbanned ${idsAffected.length} users`);
+        }
+
+        //get the closest ban record to schedule next check
+        let nextCheck = await this.sql.get("SELECT * FROM Punishments WHERE timeuntil > ? AND active = ? ORDER BY timeuntil ASC", 
+            [Date.now(), true]
+        );
+        let delay = 5 * 60 * 1000; //default re-schedule in 5 minutes;
+        if(nextCheck) {
+            delay = nextCheck.timeuntil - Date.now();
+        }
+        this.log.info(`Scheduling next ban check in ${delay / 1000} seconds`);
+        clearTimeout(this.punishmentTimer);
+        this.punishmentTimer = setTimeout(this.punishmentsTicker.bind(this), delay);
     }
 }
 

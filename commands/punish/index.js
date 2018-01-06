@@ -22,6 +22,10 @@
             bot.dynamicConfig.printCache();
             break;
         }
+        case "-forcecheck": {
+            bot.punishmentsTicker();
+            break;
+        }
         default: { // args[0] is the @mention of user, args[1] is the time string
             if(!args[0]) throw {message: "Member is not specified, consult help for correct syntax."};
             if(!args[1]) throw {message: "Duration not specified, consult help for correct syntax."};
