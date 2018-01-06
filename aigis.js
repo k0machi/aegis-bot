@@ -6,6 +6,7 @@ const qs = require("querystring");
 const canduit = require("canduit");
 const bunyan = require("bunyan");
 const prettyStream = require("bunyan-prettystream");
+const DynamicConfig = require("./core/config/config");
 /**
  * Aigis bot
  */
@@ -61,11 +62,14 @@ class Aigis
         this.server = http.createServer((req, res) => {
             res.end();
         });
-        this.sql.open("./database/main.db");
+        await this.sql.open("./database/main.db");
         this.config = this.yaml.safeLoad(this.fs.readFileSync("./config.yml", "utf8"));
+        this.dynamicConfig = new DynamicConfig(this.sql, this.log);
+        await this.dynamicConfig.init();
         this.pfx = this.config.command_prefix;
         this.canduit = canduit({ api: this.config.phab_host, user: "Aegis", token: this.config.phab_api_token }, () => { this.log.info("Conduit Init"); });
         this.phabricator.init(this.canduit, this);
+        this.punishmentsInit();
         const commands = await directoryReader("./commands/");
     
         commands.forEach(function(file) {
@@ -207,6 +211,7 @@ class Aigis
      */
     async processCommand(message) {
         if (!message.content.startsWith(this.config.command_prefix)) return;
+        if(message.author.bot) return;
         const args = message.content.slice(this.config.command_prefix.length).trim().split(/ +/g);
         const command = args.shift();
         const cmd = this.commands[command] || this.commands[this.aliases[command]];
@@ -366,6 +371,44 @@ class Aigis
      */
     parseYAML(path) {
         return this.yaml.safeLoad(this.fs.readFileSync(path, "utf8"));
+    }
+
+    /**
+     * Checks if table for punishment module exists and creates one if it does not
+     */
+    async punishmentsInit() {
+        try {
+            await this.sql.get("SELECT * FROM Punishments WHERE id = 0");
+        } catch (error) {
+            this.log.warn(error);
+            await this.sql.run("CREATE TABLE IF NOT EXISTS Punishments(id INTEGER PRIMARY KEY, guildid TEXT NOT NULL, discordid TEXT NOT NULL, privileges TEXT, timefrom INTEGER, timeuntil INTEGER, type INTEGER, active TINYINT)");
+        }
+    }
+
+    /**
+     * 
+     * @param {int} guildid Discord server id 
+     * @param {Discord.GuildMember} guildMember Member affected
+     * @param {int} timeUntil time until punishment is active
+     */
+    async punishmentsCreateRecord(guildid, guildMember, timeUntil ) { //get all roles except @everyone
+        let groupToAssign = await this.dynamicConfig.getValue(guildid, "punish.role");
+        if(!groupToAssign) throw {message: "No roles defined for this server, see help for more information"};
+        let currentRoles = guildMember.roles.reduce((currentRoles, el) => {
+            if(el.name != "@everyone")
+                currentRoles.push(el.id);
+            return currentRoles;
+        }, []);
+        let type = 1; //futureproofing, not relevant for now
+        for(var i = 0; i < currentRoles.length; i++) {
+            await guildMember.removeRole(currentRoles[i]);
+            console.log(`Role ${currentRoles[i]} removed`);
+        }
+        await guildMember.addRole(groupToAssign);
+        console.log(`Role ${groupToAssign} added`);
+        await this.sql.run("INSERT INTO Punishments ([guildid], [discordid], [privileges], [timefrom], [timeuntil], [type], [active]) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [guildid, guildMember.user.id, currentRoles.join(","), Date.now(), timeUntil, type, true]
+        );
     }
 }
 
