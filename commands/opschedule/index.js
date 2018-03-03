@@ -4,10 +4,11 @@
     const dateFormat = require("dateformat");
     const sheetId = localConfig.spreadsheets[message.guild.id];
     let lookAhead = localConfig.lookahead;
+
     if(parseInt(args[0]) > 0)
         lookAhead = args[0];
     if(!sheetId)
-        throw {message: "No spreadsheet linked for this server"}
+        throw {message: "No spreadsheet linked for this server"};
 
     if (message.member.roles.array().length < 2)
         throw { message: "This command is restricted to Members and above" };
@@ -65,7 +66,7 @@
         let temp = retard.split("/");
         return "20" + temp[2] + "-" + temp[0] + "-" + temp[1];
     }
-}
+};
 
 module.exports.meta = {
     action: "op"

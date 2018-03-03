@@ -217,6 +217,7 @@ class Aigis
         const args = message.content.slice(this.config.command_prefix.length).trim().split(/ +/g);
         const command = args.shift();
         const cmd = this.commands[command] || this.commands[this.aliases[command]];
+        this.log.info(`${command} requested by ${message.author.username}(${message.author.id}), channel ${message.channel.name}, guild ${message.guild.name}`);
         if (!cmd)
             return;
         try {
@@ -232,7 +233,6 @@ class Aigis
             if (cd) throw {
                 message: `Please wait ${parseInt(cd /1000)} seconds before executing \`${this.pfx}${cmd.meta.action}\` again` 
             };
-            this.log.debug(`${command} exec`);
             await cmd.exec(this, message, args);
         } catch (e) {
             message.channel.send(e.message);
@@ -409,12 +409,10 @@ class Aigis
         );
 
         if(existingRecord && existingRecord.id) { //update timings existing record
-            console.log("Record found, updating");
             await this.sql.run("UPDATE Punishments SET timefrom = ?, timeuntil = ? WHERE id = ?",
                 [Date.now(), timeUntil, existingRecord.id]
             );
         } else { //create new one
-            console.log("Record not found, creating new one...");
             await this.sql.run("INSERT INTO Punishments ([guildid], [discordid], [privileges], [timefrom], [timeuntil], [type], [active]) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [guildid, guildMember.user.id, currentRoles.join(","), Date.now(), timeUntil, type, true]
             );
@@ -427,7 +425,6 @@ class Aigis
 
             //add banned role
             await guildMember.addRole(groupToAssign);
-            console.log(`Punishment role ${groupToAssign} added`);
         }
         this.punishmentsTicker();
 
