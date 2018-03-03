@@ -1,0 +1,5 @@
+active: true
+hidden: false
+aliases: []
+permissions: "SEND_MESSAGES"
+cooldown: 5

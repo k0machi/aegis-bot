@@ -70,7 +70,7 @@ class Aigis
         this.pfx = this.config.command_prefix;
         this.canduit = canduit({ api: this.config.phab_host, user: "Aegis", token: this.config.phab_api_token }, () => { this.log.info("Conduit Init"); });
         this.phabricator.init(this.canduit, this);
-        this.punishmentsInit();
+        this.checkDatabaseSchema();
         const commands = await directoryReader("./commands/");
     
         commands.forEach(function(file) {
@@ -376,14 +376,21 @@ class Aigis
     }
 
     /**
-     * Checks if table for punishment module exists and creates one if it does not
+     * Checks if required tables for various modules exist and creates them if they do not
      */
-    async punishmentsInit() {
-        try {
+    async checkDatabaseSchema() {
+        try { //punishment module
             await this.sql.get("SELECT * FROM Punishments WHERE id = 0");
         } catch (error) {
             this.log.warn(error);
             await this.sql.run("CREATE TABLE IF NOT EXISTS Punishments(id INTEGER PRIMARY KEY, guildid TEXT NOT NULL, discordid TEXT NOT NULL, privileges TEXT, timefrom INTEGER, timeuntil INTEGER, type INTEGER, active TINYINT)");
+        }
+
+        try { //russian roulette
+            await this.sql.get("SELECT * FROM RouletteScores WHERE discordid = 0");
+        } catch (error) {
+            this.log.warn(error);
+            await this.sql.run("CREATE TABLE IF NOT EXISTS RouletteScores(discordid TEXT NOT NULL, guildid TEXT NOT NULL, wins INTEGER, loses INTEGER, PRIMARY KEY(discordid, guildid))");
         }
     }
 
