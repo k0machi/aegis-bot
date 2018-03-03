@@ -428,10 +428,18 @@ class Aigis
             let stripPromises = currentRoles.map((el) => {
                 return guildMember.removeRole(el);
             });
-            await Promise.all(stripPromises);
+            try {
+                await Promise.all(stripPromises);
+            } catch (error) {
+                this.log.error(`Unable to strip some roles from ${guildMember.user.username} at guild ${guildid} with error: ${error}`);
+            }
 
             //add banned role
-            await guildMember.addRole(groupToAssign);
+            try {
+                await guildMember.addRole(groupToAssign);
+            } catch (error) {
+                this.log.error(`Unable to restore some roles to ${guildMember.user.username} at guild ${guildid} with error: ${error}`);
+            }
         }
         this.punishmentsTicker();
 
@@ -485,6 +493,57 @@ class Aigis
         this.log.info(`Scheduling next ban check in ${delay / 1000} seconds`);
         clearTimeout(this.punishmentTimer);
         this.punishmentTimer = setTimeout(this.punishmentsTicker.bind(this), delay);
+    }
+
+    /**
+     * Updates records for russian-roulette module
+     * @param {int} guildid Discord server id 
+     * @param {int} discordid Discord user id
+     * @param {boolean} lost Whether the user lost the roulette
+     */
+    async rouletteUpdateRecords(guildid, discordid, lost) {
+        let existingRecord = await this.sql.get("SELECT * FROM RouletteScores WHERE discordid = ? AND guildid = ?",
+            [discordid, guildid]
+        );
+        let insertData = [discordid, guildid];
+        if(!existingRecord) { //create new record
+            if(lost) {
+                insertData.push(0); //wins
+                insertData.push(1); //loses
+            } else {
+                insertData.push(1);
+                insertData.push(0);
+            }
+        } else { //update existing record
+            if(lost) {
+                insertData.push(existingRecord.wins); //wins
+                insertData.push(existingRecord.loses + 1); //loses
+            } else {
+                insertData.push(existingRecord.wins + 1);
+                insertData.push(existingRecord.loses);
+            }
+        }
+        try{
+            await this.sql.run("REPLACE INTO RouletteScores ([discordid], [guildid], [wins], [loses]) VALUES(?, ?, ?, ?)", insertData);
+        } catch(error) {
+            this.log.error("Error updating roulette records: " + error);
+        }
+    }
+
+    /**
+     * Gets records for russian-roulette module
+     * @param {int} guildid 
+     * @param {int} discordid 
+     */
+    async rouletteGetRecords(guildid, discordid) {
+        let existingRecord = await this.sql.get("SELECT * FROM RouletteScores WHERE discordid = ? AND guildid = ?",
+            [discordid, guildid]
+        );
+        if(!existingRecord) {
+            return {wins: 0, loses: 0};
+        } else {
+            return {wins: existingRecord.wins, loses: existingRecord.loses};
+        }
     }
 }
 

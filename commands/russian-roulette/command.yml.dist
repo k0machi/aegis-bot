@@ -3,3 +3,7 @@ hidden: false
 aliases: []
 permissions: "SEND_MESSAGES"
 cooldown: 5
+#delay between updates, msec
+delay: 1000
+#how long the user will have the group assigned, minutes
+banDuration: 60
