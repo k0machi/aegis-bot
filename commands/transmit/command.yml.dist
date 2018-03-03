@@ -1,0 +1,5 @@
+active: true
+hidden: true
+aliases: []
+permissions: "MANAGE_ROLES"
+cooldown: 5
