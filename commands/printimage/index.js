@@ -1,6 +1,8 @@
 ﻿module.exports.exec = (bot, message, args) => {
     var gd = require("node-gd");
     var picturePath = __dirname + "/resources/sign.png";
+    if(args.length < 1)
+        throw { message: "WHERE IS THE MESSAGE EGG-MAN" };
     var textToPrint = args.join(" ");
     if (textToPrint.length > 500) throw { message: "Your message is too long!" };
 

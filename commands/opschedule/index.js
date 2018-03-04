@@ -1,13 +1,14 @@
 ﻿module.exports.exec = async (bot, message, args) => { //eslint-disable-line no-unused-vars
     const localConfig = bot.parseYAML(__dirname + "/command.yml");
-    const GoogleSpreadsheet = require('google-spreadsheet');
-    const dateFormat = require('dateformat');
+    const GoogleSpreadsheet = require("google-spreadsheet");
+    const dateFormat = require("dateformat");
     const sheetId = localConfig.spreadsheets[message.guild.id];
     let lookAhead = localConfig.lookahead;
+
     if(parseInt(args[0]) > 0)
         lookAhead = args[0];
     if(!sheetId)
-        throw {message: "No spreadsheet linked for this server"}
+        throw {message: "No spreadsheet linked for this server"};
 
     if (message.member.roles.array().length < 2)
         throw { message: "This command is restricted to Members and above" };
@@ -17,11 +18,11 @@
     doc.getRows(1, function(err, rows){
         if(err){
             message.channel.send("Something went wrong while fetching. Make sure your spreadsheet is published for web (File -> Publish for Web)");
-            console.log(err);
+            bot.log.error(err);
             return;
         }
         rows.forEach(function(elem){
-            if(!elem.dates || (elem.mission == "" && elem.authors == "" && elem['commentsmods-bugs-etc.'] == "")){
+            if(!elem.dates || (elem.mission == "" && elem.authors == "" && elem["commentsmods-bugs-etc."] == "")){
                 return;
             }
         
@@ -29,7 +30,7 @@
                 date: retardDateToNormalDate(elem.dates),
                 name: elem.mission,
                 author: elem.authors,
-                comment: elem['commentsmods-bugs-etc.']
+                comment: elem["commentsmods-bugs-etc."]
             }); 
 
         });
@@ -52,7 +53,7 @@
                 if(entry.comment != "")
                     messageText += `**Note:** ${entry.comment}\n`;
                 messageText += "\n";
-                    lookAhead--;
+                lookAhead--;
             }
         });
         if(messageText == "")
@@ -62,10 +63,10 @@
     });
 
     function retardDateToNormalDate(retard){
-        let temp = retard.split('/');
-        return '20' + temp[2] + '-' + temp[0] + '-' + temp[1];
+        let temp = retard.split("/");
+        return "20" + temp[2] + "-" + temp[0] + "-" + temp[1];
     }
-}
+};
 
 module.exports.meta = {
     action: "op"
