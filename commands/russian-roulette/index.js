@@ -18,7 +18,11 @@
         if(queue.length < 1) { // all messages are sent
             if(lost) {
                 let banUntil = Date.now() + (localConfig.banDuration * 60) * 1000;
-                await bot.punishmentsCreateRecord(message.guild.id, affectedUser, banUntil);
+                try {
+                    await bot.punishmentsCreateRecord(message.guild.id, affectedUser, banUntil, "roulette.role");
+                } catch (e) {
+                    throw e;
+                }
             }
             bot.rouletteUpdateRecords(message.guild.id, message.author.id, lost);
             return ;

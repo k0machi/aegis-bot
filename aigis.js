@@ -383,7 +383,7 @@ class Aigis
             await this.sql.get("SELECT * FROM Punishments WHERE id = 0");
         } catch (error) {
             this.log.warn(error);
-            await this.sql.run("CREATE TABLE IF NOT EXISTS Punishments(id INTEGER PRIMARY KEY, guildid TEXT NOT NULL, discordid TEXT NOT NULL, privileges TEXT, timefrom INTEGER, timeuntil INTEGER, type INTEGER, active TINYINT)");
+            await this.sql.run("CREATE TABLE IF NOT EXISTS Punishments(id INTEGER PRIMARY KEY, guildid TEXT NOT NULL, discordid TEXT NOT NULL, privileges TEXT, rolekey TEXT NULL, timefrom INTEGER, timeuntil INTEGER, type INTEGER, active TINYINT)");
         }
 
         try { //russian roulette
@@ -399,9 +399,10 @@ class Aigis
      * @param {int} guildid Discord server id 
      * @param {Discord.GuildMember} guildMember Member affected
      * @param {int} timeUntil time until punishment is active
+     * @param {string} roleKey config namespace.key of role to assign
      */
-    async punishmentsCreateRecord(guildid, guildMember, timeUntil ) { //get all roles except @everyone
-        let groupToAssign = await this.dynamicConfig.getValue(guildid, "punish.role");
+    async punishmentsCreateRecord(guildid, guildMember, timeUntil, roleKey = "punish.role") { //get all roles except @everyone
+        let groupToAssign = await this.dynamicConfig.getValue(guildid, roleKey);
         if(!groupToAssign) throw {message: "No roles defined for this server, see help for more information"};
         let currentRoles = guildMember.roles.reduce((currentRoles, el) => {
             if(el.name != "@everyone")
@@ -420,8 +421,8 @@ class Aigis
                 [Date.now(), timeUntil, existingRecord.id]
             );
         } else { //create new one
-            await this.sql.run("INSERT INTO Punishments ([guildid], [discordid], [privileges], [timefrom], [timeuntil], [type], [active]) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                [guildid, guildMember.user.id, currentRoles.join(","), Date.now(), timeUntil, type, true]
+            await this.sql.run("INSERT INTO Punishments ([guildid], [discordid], [privileges], [timefrom], [timeuntil], [type], [active], [rolekey]) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                [guildid, guildMember.user.id, currentRoles.join(","), Date.now(), timeUntil, type, true, roleKey]
             );
 
             //strip all roles except @everyone
@@ -461,12 +462,20 @@ class Aigis
     
         let idsAffected = [];
         for(var i = 0; i < usersToUnban.length; i++) {
-            let groupToRemove = await this.dynamicConfig.getValue(usersToUnban[i].guildid, "punish.role");
+            let groupToRemoveKey = "punish.role";
+            if(usersToUnban[i].rolekey) {
+                groupToRemoveKey = usersToUnban[i].rolekey;
+            }
+            let groupToRemove = await this.dynamicConfig.getValue(usersToUnban[i].guildid, groupToRemoveKey);
             let currentGuild = this.client.guilds.get(usersToUnban[i].guildid);
             let currentMember = currentGuild.members.get(usersToUnban[i].discordid);
 
             //remove banned group
-            await currentMember.removeRole(groupToRemove);
+            try {
+                await currentMember.removeRole(groupToRemove);
+            } catch(e) {
+                this.log.error(`Error removing role for punishment id ${usersToUnban[i].id}`);
+            }
 
             let groupsToRestore = usersToUnban[i].privileges.split(",");
             let restorePromises = groupsToRestore.map((el) => {
