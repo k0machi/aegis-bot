@@ -212,8 +212,15 @@ class Aigis
      * @param {Discord.Message} message message to process
      */
     async processCommand(message) {
-        if (!message.content.startsWith(this.config.command_prefix)) return;
-        if(message.author.bot) return;
+        if(message.author.bot)
+            return;
+
+        if(await this.preProcessMessage(message)) 
+            return;
+        
+        if (!message.content.startsWith(this.config.command_prefix))
+            return;
+        
         const args = message.content.slice(this.config.command_prefix.length).trim().split(/ +/g);
         const command = args.shift();
         const cmd = this.commands[command] || this.commands[this.aliases[command]];
@@ -553,6 +560,38 @@ class Aigis
         } else {
             return {wins: existingRecord.wins, loses: existingRecord.loses};
         }
+    }
+
+    /**
+     * Returns false if message does not contain banned words and should be processed further
+     * or returns true if message has banned words and has been deleted
+     * @param {Discord.Message} message 
+     */
+    async preProcessMessage(message) {
+        let badwords = await this.dynamicConfig.getValueJSON(message.guild.id, "filter.list");
+
+        if(message.member.hasPermission("MANAGE_MESSAGES")) //admins and moderators should be immune anyway
+            return false;
+
+        let words = message.content.trim().toLowerCase().split(/\b/);
+        const iMax = words.length;
+
+        for (let badWord in badwords) {
+            let i = 0;
+            for(; i < iMax; i++) {
+                if(badWord === words[i]) {
+                    await message.delete();
+                    let comment = `${message.author} Fun police have prohibited you from usage of this word!`;
+                    if(badwords[badWord] && badwords[badWord].length > 0)
+                        comment = message.author + " " + badwords[badWord];
+                    let reply = await message.channel.send(comment);
+                    reply.delete(5000);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
 

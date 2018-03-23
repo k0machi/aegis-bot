@@ -72,8 +72,14 @@ class Config {
         
     }
 
-    printCache() {
-        console.log(this.cache);
+
+    async getValueJSON(guildId, compositeKey)
+    {
+        let raw = await this.getValue(guildId, compositeKey);
+        let parsed = {};
+        if(raw != undefined)
+            parsed = JSON.parse(raw);
+        return parsed;
     }
 
 }
