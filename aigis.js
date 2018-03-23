@@ -399,6 +399,13 @@ class Aigis
             this.log.warn(error);
             await this.sql.run("CREATE TABLE IF NOT EXISTS RouletteScores(discordid TEXT NOT NULL, guildid TEXT NOT NULL, wins INTEGER, loses INTEGER, PRIMARY KEY(discordid, guildid))");
         }
+
+        try { //wordfilter stats
+            await this.sql.get("SELECT * FROM WordfilterStats WHERE guildid = 0");
+        } catch (error) {
+            this.log.warn(error);
+            await this.sql.run("CREATE TABLE IF NOT EXISTS WordfilterStats(guildid TEXT NOT NULL, discordid TEXT NOT NULL, word TEXT NOT NULL, time INTEGER NOT NULL)");
+        }
     }
 
     /**
@@ -586,6 +593,10 @@ class Aigis
                         comment = message.author + " " + badwords[badWord];
                     let reply = await message.channel.send(comment);
                     reply.delete(5000);
+
+                    this.sql.run("INSERT INTO WordfilterStats([guildid], [discordid], [word], [time]) VALUES(?, ?, ?, ?)",
+                        [message.guild.id, message.author.id, badWord, message.createdTimestamp]);
+
                     return true;
                 }
             }
