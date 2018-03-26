@@ -166,6 +166,24 @@ class Aigis
     }
 
     /**
+     * Gets the command config from string
+     * @param {string} verb 
+     */
+    getCommand(verb)
+    {
+        return this.commands[verb];
+    }
+
+    /**
+     * Resolves alias to a full command
+     * @param {string} alias 
+     */
+    resolveAlias(alias)
+    {
+        return this.aliases[alias];
+    }
+
+    /**
      * Assigns command verb to a command object
      * @param {string} verb command string
      * @param {Object} object command object
